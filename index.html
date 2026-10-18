@@ -13,202 +13,84 @@
   :root{
     --bg:#000; --surface:#0a0a0a; --surface-2:#121212; --surface-3:#1a1a1a;
     --border:#1f1f1f; --border-2:#2a2a2a; --text:#f5f5f5; --text-dim:#8a8a8a;
-    --text-dimmer:#555; --danger:#e11d48; --success:#22c55e;
+    --text-dimmer:#555; --danger:#e11d48; --success:#22c55e; --accent:#2b6aff;
     --header-h:52px;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden}
-  body{
-    background:var(--bg);color:var(--text);
-    font-family:'Inter',system-ui,-apple-system,sans-serif;
-    font-size:13px;line-height:1.4;
-    display:flex;flex-direction:column;
-    -webkit-font-smoothing:antialiased;overscroll-behavior:none;
-  }
-  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:13px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  .mono{font-family:'JetBrains Mono',monospace;}
 
   /* HEADER */
-  .header{
-    height:var(--header-h);flex-shrink:0;
-    display:flex;align-items:center;gap:10px;padding:0 14px;
-    background:var(--surface);border-bottom:1px solid var(--border);
-    position:relative;z-index:100;
-  }
-  .brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13px;flex-shrink:0}
-  .brand-logo{
-    width:26px;height:26px;border-radius:7px;background:var(--text);color:var(--bg);
-    display:flex;align-items:center;justify-content:center;font-size:12px;
-  }
-  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dimmer);flex-shrink:0}
-  .live-dot.on{background:var(--success);box-shadow:0 0 0 3px rgba(34,197,94,.15);animation:pulse 2s infinite}
+  .header{height:var(--header-h);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--surface);border-bottom:1px solid var(--border);z-index:100;}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13px;}
+  .brand-logo{width:26px;height:26px;border-radius:7px;background:var(--text);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dimmer);}
+  .live-dot.on{background:var(--success);box-shadow:0 0 0 3px rgba(34,197,94,.15);animation:pulse 2s infinite;}
   @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
-  .role-tag{
-    font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
-    padding:3px 8px;border-radius:5px;background:var(--surface-3);color:var(--text-dim);border:1px solid var(--border);
-  }
-  .role-tag.host{background:var(--text);color:var(--bg);border-color:var(--text)}
-  .header-spacer{flex:1}
-  .link-bar{
-    display:flex;align-items:center;gap:6px;background:var(--surface-2);
-    border:1px solid var(--border);border-radius:8px;padding:4px 4px 4px 12px;
-    max-width:320px;min-width:0;
-  }
-  .link-bar .url{font-size:11px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
-  .copy-btn{
-    display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;
-    background:var(--surface-3);color:var(--text);font-size:11px;font-weight:500;flex-shrink:0;
-  }
-  .copy-btn.ok{background:var(--success);color:#001a09}
-  .copy-btn i{font-size:10px}
-  .icon-btn{
-    width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-    background:transparent;color:var(--text-dim);flex-shrink:0;font-size:13px;
-  }
-  .icon-btn:hover{background:var(--surface-3);color:var(--text)}
+  .role-tag{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:5px;background:var(--surface-3);color:var(--text-dim);border:1px solid var(--border);}
+  .role-tag.host{background:var(--text);color:var(--bg);border-color:var(--text);}
+  .header-spacer{flex:1;}
+  .link-bar{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:4px 4px 4px 12px;max-width:320px;}
+  .link-bar .url{font-size:11px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .copy-btn{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:var(--surface-3);color:var(--text);font-size:11px;font-weight:500;}
+  .copy-btn.ok{background:var(--success);color:#001a09;}
+  .icon-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:13px;transition:.15s;}
+  .icon-btn:hover{background:var(--surface-3);color:var(--text);}
 
-  /* LAYOUT */
-  .layout{flex:1;display:flex;overflow:hidden;position:relative;background:#fff}
-  .stage{flex:1;position:relative;background:#fff;overflow:hidden;touch-action:none}
-  #canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+  /* MAIN LAYOUT */
+  .layout{flex:1;display:flex;overflow:hidden;position:relative;background:#1a1a1a;}
+  .stage{flex:1;position:relative;overflow:hidden;touch-action:none;display:flex;align-items:center;justify-content:center;background:#000;}
+  #mainCanvas{background:#fff;box-shadow:0 0 20px rgba(0,0,0,0.5);touch-action:none;display:block;}
 
-  /* TEXT INPUT OVERLAY */
-  .text-input{
-    position:absolute;z-index:60;display:none;
-    background:#fff;border:2px solid #2b6aff;border-radius:4px;
-    padding:2px 6px;font-size:16px;outline:none;
-    min-width:80px;color:#000;font-family:inherit;
-  }
-  .text-input.show{display:block}
+  /* SIDEBAR (HOST) */
+  .sidebar{width:300px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;transition:.2s;z-index:90;}
+  .sidebar.collapsed{width:0;padding:0;overflow:hidden;border:none;}
+  .side-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dimmer);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+  .tool-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 2px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:9px;font-weight:500;transition:.15s;}
+  .tool-btn i{font-size:14px;}
+  .tool-btn:hover{background:var(--surface-3);color:var(--text);}
+  .tool-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
+  .swatches-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .swatch-lg{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;}
+  .swatch-lg.active{border-color:#fff;transform:scale(1.1);}
+  .swatch-lg.white{border-color:#444;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--surface-3);border-radius:2px;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:var(--text);cursor:pointer;}
+  .row-toggle{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:11px;color:var(--text-dim);}
+  .toggle{width:32px;height:18px;background:var(--surface-3);border-radius:10px;position:relative;cursor:pointer;transition:.2s;}
+  .toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:.2s;}
+  .toggle.on{background:var(--success);} .toggle.on::after{transform:translateX(14px);}
+  .status-line{display:flex;align-items:center;gap:8px;padding:8px;background:var(--surface-2);border-radius:6px;font-size:11px;color:var(--text-dim);font-family:monospace;}
 
-  /* FLOATING TOOLBAR */
-  .fab{
-    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-    display:flex;align-items:center;gap:4px;padding:6px;
-    background:rgba(10,10,10,.94);backdrop-filter:blur(20px);
-    -webkit-backdrop-filter:blur(20px);
-    border:1px solid var(--border-2);border-radius:16px;
-    box-shadow:0 20px 40px -8px rgba(0,0,0,.9);
-    z-index:50;max-width:calc(100vw - 24px);overflow-x:auto;scrollbar-width:none;
-  }
-  .fab::-webkit-scrollbar{display:none}
-  .fab.hidden{display:none}
-  .fab .tool{
-    width:36px;height:36px;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    border-radius:9px;color:var(--text-dim);font-size:13px;
-  }
-  .fab .tool:hover{background:var(--surface-3);color:var(--text)}
-  .fab .tool.active{background:var(--text);color:var(--bg)}
-  .fab .tool.danger:hover{background:var(--danger);color:#fff}
-  .fab .divider{width:1px;height:22px;background:var(--border-2);margin:0 3px;flex-shrink:0}
-  .fab .swatch{
-    width:20px;height:20px;border-radius:50%;flex-shrink:0;
-    cursor:pointer;border:2px solid transparent;
-  }
-  .fab .swatch.active{border-color:#fff;transform:scale(1.1)}
-  .fab .swatch.white{border-color:#444}
-  .fab .swatch.white.active{border-color:#fff}
-
-  /* SIDEBAR */
-  .sidebar{
-    display:none;width:300px;flex-shrink:0;
-    background:var(--surface);border-left:1px solid var(--border);
-    overflow-y:auto;padding:16px;
-  }
-  .side-section{margin-bottom:22px}
-  .side-label{
-    font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-    color:var(--text-dimmer);margin-bottom:10px;display:flex;align-items:center;gap:6px;
-  }
-  .side-label i{font-size:10px}
-  .tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-  .tool-btn{
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-    padding:10px 2px;background:var(--surface-2);border:1px solid var(--border);
-    border-radius:8px;color:var(--text-dim);font-size:9px;font-weight:500;
-  }
-  .tool-btn i{font-size:14px}
-  .tool-btn:hover{background:var(--surface-3);color:var(--text)}
-  .tool-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
-
-  .swatches-row{display:flex;gap:7px;flex-wrap:wrap}
-  .swatch-lg{
-    width:26px;height:26px;border-radius:50%;cursor:pointer;
-    border:2px solid transparent;
-  }
-  .swatch-lg.active{border-color:#fff;transform:scale(1.08)}
-  .swatch-lg.white{border-color:#444}
-  .swatch-lg.white.active{border-color:#fff}
-
-  input[type=range]{
-    -webkit-appearance:none;appearance:none;width:100%;height:4px;
-    background:var(--surface-3);border-radius:2px;outline:none;
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none;appearance:none;width:16px;height:16px;
-    border-radius:50%;background:var(--text);cursor:pointer;border:2px solid var(--surface);
-  }
-  input[type=range]::-moz-range-thumb{
-    width:16px;height:16px;border-radius:50%;background:var(--text);
-    cursor:pointer;border:2px solid var(--surface);
-  }
-  .slider-head{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:8px}
-
-  .upload-btn{
-    display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;
-    background:var(--surface-2);border:1px dashed var(--border-2);border-radius:8px;
-    color:var(--text-dim);font-size:12px;font-weight:500;
-  }
-  .upload-btn:hover{background:var(--surface-3);color:var(--text);border-color:var(--text-dim)}
-  .file-info{
-    margin-top:10px;padding:10px;background:var(--surface-2);
-    border-radius:8px;font-size:11px;color:var(--text-dim);
-  }
-  .file-info .name{color:var(--text);font-weight:500;display:block;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .page-controls{display:flex;gap:6px;margin-top:10px}
-  .page-btn{
-    flex:1;padding:9px;background:var(--surface-2);border:1px solid var(--border);
-    border-radius:8px;color:var(--text-dim);font-size:11px;font-weight:500;
-    display:flex;align-items:center;justify-content:center;gap:6px;
-  }
-  .page-btn:hover:not(:disabled){background:var(--surface-3);color:var(--text)}
-  .page-btn:disabled{opacity:.35;cursor:not-allowed}
-  .page-btn.remove:hover:not(:disabled){background:var(--danger);color:#fff}
-  .status-line{
-    display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--surface-2);
-    border-radius:8px;font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;
-  }
-  .status-line i{font-size:10px;color:var(--text-dimmer)}
-  .status-line.ok i{color:var(--success)}
-  .status-line.err i{color:var(--danger)}
-  .status-line .room{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* MOBILE TOOLBARS */
+  .fab-mobile{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border:1px solid var(--border-2);border-radius:16px;padding:6px;z-index:100;max-width:calc(100vw - 20px);overflow-x:auto;gap:4px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);}
+  .fab-mobile .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .fab-mobile .tool.active{background:var(--text);color:var(--bg);}
+  .fab-mobile .divider{width:1px;height:20px;background:var(--border-2);margin:0 2px;flex-shrink:0;}
+  .fab-mobile .swatch{width:22px;height:22px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid transparent;}
+  .fab-mobile .swatch.active{border-color:#fff;transform:scale(1.1);}
+  .fab-mobile .swatch.white{border-color:#444;}
+  
+  /* VIEWER CONTROLS */
+  .viewer-controls{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border:1px solid var(--border-2);border-radius:16px;padding:6px;z-index:100;gap:4px;align-items:center;}
+  .viewer-controls.show{display:flex;}
+  .viewer-controls .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .viewer-controls .tool.active{background:var(--accent);color:#fff;}
 
   /* DRAWER */
-  .drawer-backdrop{
-    position:fixed;inset:0;background:rgba(0,0,0,.7);
-    backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;
-  }
-  .drawer-backdrop.open{opacity:1;pointer-events:auto}
-  .drawer{
-    position:fixed;left:0;right:0;bottom:0;background:var(--surface);
-    border-top:1px solid var(--border-2);border-radius:20px 20px 0 0;
-    padding:10px 16px 24px;max-height:80vh;overflow-y:auto;z-index:201;
-    transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);
-    padding-bottom:calc(24px + env(safe-area-inset-bottom));
-  }
-  .drawer.open{transform:translateY(0)}
-  .drawer-handle{width:36px;height:4px;border-radius:2px;background:var(--border-2);margin:0 auto 14px}
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;backdrop-filter:blur(2px);}
+  .drawer{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;padding:20px;z-index:201;transform:translateY(100%);transition:.2s;max-height:85vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+  .drawer.open{transform:translateY(0);}
+  .drawer-handle{width:36px;height:4px;background:var(--border-2);border-radius:2px;margin:0 auto 16px;}
 
-  @media(min-width:900px){
-    .sidebar{display:block}
-    .fab{display:none}
-    .drawer,.drawer-backdrop{display:none}
-  }
-  @media(max-width:899px){
-    .link-bar{max-width:160px}
-    .copy-btn span{display:none}
-    .brand-text{display:none}
+  @media(max-width:900px){
+    .sidebar{display:none;}
+    .fab-mobile{display:flex;}
+    .link-bar{max-width:140px;}
+    .copy-btn span{display:none;}
   }
 </style>
 </head>
@@ -223,21 +105,21 @@
   <span class="role-tag" id="roleTag">host</span>
   <div class="header-spacer"></div>
   <div class="link-bar">
-    <span class="url mono" id="urlText">…</span>
+    <span class="url" id="urlText">…</span>
     <button class="copy-btn" id="copyBtn"><i class="fa-regular fa-copy"></i><span>Copy</span></button>
   </div>
-  <button class="icon-btn" id="menuBtn"><i class="fa-solid fa-sliders"></i></button>
+  <button class="icon-btn" id="sidebarBtn" style="display:none"><i class="fa-solid fa-bars"></i></button>
 </header>
 
 <div class="layout">
   <div class="stage" id="stage">
-    <canvas id="canvas"></canvas>
-    <input type="text" class="text-input" id="textInput" placeholder="Type…">
+    <canvas id="mainCanvas"></canvas>
   </div>
 
+  <!-- HOST SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="side-section">
-      <div class="side-label"><i class="fa-solid fa-toolbox"></i> Drawing</div>
+      <div class="side-label"><i class="fa-solid fa-toolbox"></i> Draw Tools</div>
       <div class="tools-grid" id="toolsGridD"></div>
     </div>
 
@@ -247,9 +129,14 @@
     </div>
 
     <div class="side-section">
-      <div class="side-label"><i class="fa-solid fa-circle-half-stroke"></i> Size</div>
-      <div class="slider-head"><span>Stroke</span><span class="mono" id="sizeVal">4px</span></div>
-      <input type="range" id="sizeSlider" min="1" max="30" value="4">
+      <div class="side-label"><i class="fa-solid fa-sliders"></i> Properties</div>
+      <div style="margin-bottom:10px">
+        <div class="row-toggle"><span>Stroke size</span><span id="sizeVal">4px</span></div>
+        <input type="range" id="sizeSlider" min="1" max="30" value="4">
+      </div>
+      <div class="row-toggle"><span>Solid Fill (Shapes)</span><div class="toggle" id="fillToggle"></div></div>
+      <div class="row-toggle"><span>Background Grid</span><div class="toggle" id="gridToggle"></div></div>
+      <div class="row-toggle"><span>Show Ruler Overlay</span><div class="toggle" id="rulerToggle"></div></div>
     </div>
 
     <div class="side-section">
@@ -259,83 +146,84 @@
 
     <div class="side-section">
       <div class="side-label"><i class="fa-solid fa-file-pdf"></i> Document</div>
-      <label class="upload-btn" for="pdfInput"><i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF / Image</label>
-      <div class="file-info" id="fileInfo" style="display:none">
-        <span class="name" id="fileName">—</span>
-        <span id="fileMeta"></span>
-      </div>
-      <div class="page-controls">
-        <button class="page-btn" id="prevPage"><i class="fa-solid fa-chevron-left"></i>Prev</button>
-        <button class="page-btn" id="nextPage">Next<i class="fa-solid fa-chevron-right"></i></button>
-      </div>
-      <div class="page-controls" style="margin-top:6px">
-        <button class="page-btn remove" id="removeFile"><i class="fa-solid fa-xmark"></i>Remove</button>
+      <label class="copy-btn" style="width:100%;justify-content:center;padding:10px;margin-bottom:8px;border:1px dashed var(--border-2);background:var(--surface-2);cursor:pointer;" for="pdfInput">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF / Image
+      </label>
+      <input type="file" id="pdfInput" accept="application/pdf,image/*" style="display:none">
+      <div class="row-toggle"><span>PDF Opacity</span><span id="pdfOpVal">100%</span></div>
+      <input type="range" id="pdfOpacity" min="10" max="100" value="100">
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="tool-btn" id="prevPage" style="flex:1;padding:10px"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="tool-btn" id="nextPage" style="flex:1;padding:10px"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="tool-btn" id="clearPdf" style="flex:1;padding:10px"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>
 
     <div class="side-section">
-      <div class="side-label"><i class="fa-solid fa-tower-broadcast"></i> Status</div>
+      <div class="side-label"><i class="fa-solid fa-server"></i> Status</div>
       <div class="status-line" id="statusLine">
         <i class="fa-solid fa-circle-notch"></i>
-        <span class="room mono" id="roomText">—</span>
-        <span id="netText"></span>
+        <span class="room" id="roomText">—</span>
+        <span id="netText" style="margin-left:auto"></span>
       </div>
     </div>
   </aside>
 </div>
 
-<div class="fab" id="fab">
-  <div id="toolsGridM" style="display:flex;gap:4px;align-items:center"></div>
+<!-- HOST MOBILE FAB -->
+<div class="fab-mobile" id="fabMobile">
+  <div id="toolsGridM" style="display:flex;gap:4px"></div>
   <div class="divider"></div>
-  <div id="colorsM" style="display:flex;gap:5px;align-items:center"></div>
+  <div id="colorsM" style="display:flex;gap:4px"></div>
   <div class="divider"></div>
-  <div id="actionsGridM" style="display:flex;gap:4px;align-items:center"></div>
+  <button class="tool" id="mMenuBtn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
 </div>
 
+<!-- VIEWER TOOLBAR -->
+<div class="viewer-controls" id="viewerControls">
+  <button class="tool" id="vPen"><i class="fa-solid fa-pen"></i></button>
+  <button class="tool" id="vHighlighter"><i class="fa-solid fa-highlighter"></i></button>
+  <button class="tool" id="vEraser"><i class="fa-solid fa-eraser"></i></button>
+  <div class="divider"></div>
+  <button class="tool" id="vClear"><i class="fa-solid fa-trash"></i></button>
+</div>
+
+<!-- HOST DRAWER -->
 <div class="drawer-backdrop" id="backdrop"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-handle"></div>
-
   <div class="side-section">
-    <div class="side-label"><i class="fa-solid fa-circle-half-stroke"></i> Size</div>
-    <div class="slider-head"><span>Stroke</span><span class="mono" id="sizeValM">4px</span></div>
-    <input type="range" id="sizeSliderM" min="1" max="30" value="4">
+    <div class="side-label">Properties</div>
+    <div style="margin-bottom:10px">
+      <div class="row-toggle"><span>Stroke size</span><span id="sizeValM">4px</span></div>
+      <input type="range" id="sizeSliderM" min="1" max="30" value="4">
+    </div>
+    <div class="row-toggle"><span>Solid Fill (Shapes)</span><div class="toggle" id="fillToggleM"></div></div>
+    <div class="row-toggle"><span>Background Grid</span><div class="toggle" id="gridToggleM"></div></div>
+    <div class="row-toggle"><span>Show Ruler Overlay</span><div class="toggle" id="rulerToggleM"></div></div>
   </div>
-
-  <div class="side-section">
-    <div class="side-label"><i class="fa-solid fa-file-pdf"></i> Document</div>
-    <label class="upload-btn" for="pdfInput"><i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF / Image</label>
-    <div class="file-info" id="fileInfoM" style="display:none">
-      <span class="name" id="fileNameM">—</span>
-      <span id="fileMetaM"></span>
-    </div>
-    <div class="page-controls">
-      <button class="page-btn" id="prevPageM"><i class="fa-solid fa-chevron-left"></i>Prev</button>
-      <button class="page-btn" id="nextPageM">Next<i class="fa-solid fa-chevron-right"></i></button>
-    </div>
-    <div class="page-controls" style="margin-top:6px">
-      <button class="page-btn remove" id="removeFileM"><i class="fa-solid fa-xmark"></i>Remove</button>
+  <div class="side-section" style="margin-top:20px">
+    <div class="side-label">Document</div>
+    <label class="copy-btn" style="width:100%;justify-content:center;padding:10px;margin-bottom:8px;border:1px dashed var(--border-2);background:var(--surface-2);cursor:pointer;" for="pdfInput">
+      <i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF
+    </label>
+    <div class="row-toggle"><span>PDF Opacity</span><span id="pdfOpValM">100%</span></div>
+    <input type="range" id="pdfOpacityM" min="10" max="100" value="100">
+    <div style="display:flex;gap:6px;margin-top:10px">
+      <button class="tool-btn" id="prevPageM" style="flex:1;padding:10px"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="tool-btn" id="nextPageM" style="flex:1;padding:10px"><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="tool-btn" id="clearPdfM" style="flex:1;padding:10px"><i class="fa-solid fa-trash"></i></button>
     </div>
   </div>
-
-  <div class="side-section">
-    <div class="side-label"><i class="fa-solid fa-tower-broadcast"></i> Status</div>
-    <div class="status-line" id="statusLineM">
-      <i class="fa-solid fa-circle-notch"></i>
-      <span class="room mono" id="roomTextM">—</span>
-      <span id="netTextM"></span>
-    </div>
+  <div class="side-section" style="margin-top:20px">
+    <div class="side-label">Actions</div>
+    <div class="tools-grid" id="actionsGridM"></div>
   </div>
 </div>
 
-<input type="file" id="pdfInput" accept="application/pdf,image/*" style="display:none">
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getFirestore, collection, doc, addDoc, deleteDoc, getDocs,
-  query, orderBy, onSnapshot, setDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, doc, getDocs, deleteDoc, setDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAYPaMZujQgCeJRMDsRJOuNanC_7kUN1xg",
@@ -357,868 +245,458 @@ pdfjsScript.onload = () => {
 };
 document.head.appendChild(pdfjsScript);
 
-// ============ DOM ============
+// DOM
 const $ = id => document.getElementById(id);
-const canvas = $('canvas'), ctx = canvas.getContext('2d');
+const canvas = $('mainCanvas'), ctx = canvas.getContext('2d');
 const stage = $('stage');
-const textInput = $('textInput');
-const urlText = $('urlText'), copyBtn = $('copyBtn');
-const liveDot = $('liveDot'), roleTag = $('roleTag');
-const drawer = $('drawer'), backdrop = $('backdrop'), menuBtn = $('menuBtn');
-const fab = $('fab');
-const pdfInput = $('pdfInput');
 
-// ============ STATE ============
+// STATE
 let roomId = null, isHost = false;
-let dpr = 1, W = 0, H = 0; // logical canvas size in CSS px
-let objects = []; // all drawn objects (strokes, shapes, text)
-let currentTool = 'pen';
-let currentColor = '#e11d48';
-let currentSize = 4;
-let drawing = false;
+let objects = []; // Host objects (synced)
+let localNotes = []; // Viewer notes (local only)
+
+let currentTool = 'pen', currentColor = '#e11d48', currentSize = 4;
+let fillShape = false, showGrid = false, showRuler = false;
+let pdfOpacity = 1.0;
+let rulerAngle = 0, rulerX = 100, rulerY = 100;
+
+// Drawing state
+let isDrawing = false;
 let startPt = null, liveObj = null;
-let pdfImage = null; // {img, pageNum}
-let pdfDoc = null, pdfPage = 1;
-let editingTextId = null;
-let dragState = null; // {objectId, offsetX, offsetY} or {resizeId, corner}
-let selectedId = null;
 
-const COLORS = ['#e11d48','#f59e0b','#22c55e','#2b6aff','#8b5cf6','#000000','#ffffff'];
+// PDF Cache
+let pdfDoc = null, pdfPage = 1, pdfImages = {};
 
+// TOOLS (25+ host mapped beautifully)
 const TOOLS = [
-  { id:'pen',       icon:'fa-pen',          label:'Pen' },
-  { id:'eraser',    icon:'fa-eraser',       label:'Eraser' },
-  { id:'line',      icon:'fa-slash',        label:'Line' },
-  { id:'arrow',     icon:'fa-arrow-right',  label:'Arrow' },
-  { id:'rect',      icon:'fa-square',       label:'Rect' },
-  { id:'circle',    icon:'fa-circle',       label:'Circle' },
-  { id:'triangle',  icon:'fa-play',         label:'Tri' },
-  { id:'text',      icon:'fa-font',         label:'Text' },
-  { id:'select',    icon:'fa-arrow-pointer',label:'Select' },
+  { id:'pen', icon:'fa-pen', label:'Pen' },
+  { id:'highlighter', icon:'fa-highlighter', label:'Highlight' },
+  { id:'eraser', icon:'fa-eraser', label:'Eraser' },
+  { id:'line', icon:'fa-slash', label:'Line' },
+  { id:'arrow', icon:'fa-arrow-right', label:'Arrow' },
+  { id:'rect', icon:'fa-square', label:'Rect' },
+  { id:'circle', icon:'fa-circle', label:'Circle' },
+  { id:'triangle', icon:'fa-play', label:'Triangle' },
+  { id:'diamond', icon:'fa-diamond', label:'Diamond' },
+  { id:'star', icon:'fa-star', label:'Star' },
+  { id:'dot', icon:'fa-circle-dot', label:'Dot' },
+  { id:'text', icon:'fa-font', label:'Text' },
+  { id:'select', icon:'fa-arrow-pointer', label:'Select' }
 ];
 
 const ACTIONS = [
-  { id:'undo',   icon:'fa-rotate-left',  label:'Undo' },
-  { id:'clear',  icon:'fa-trash',        label:'Clear' },
+  { id:'undo', icon:'fa-rotate-left', label:'Undo' },
+  { id:'redo', icon:'fa-rotate-right', label:'Redo' },
+  { id:'clear', icon:'fa-trash', label:'Clear' }
 ];
 
-// ============ CANVAS SETUP ============
-function resizeCanvas(){
-  const r = stage.getBoundingClientRect();
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
-  W = r.width; H = r.height;
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  redraw();
-}
+const COLORS = ['#e11d48','#f59e0b','#22c55e','#2b6aff','#8b5cf6','#000000','#ffffff'];
 
-// ============ RENDER ============
-function redraw(){
+// FIXED BOARD: No pan/zoom, 1:1 ratio via object-fit
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  const r = stage.getBoundingClientRect();
+  
+  // Calculate fixed aspect ratio (16:9)
+  const targetRatio = 16 / 9;
+  let w = r.width;
+  let h = w / targetRatio;
+  
+  if (h > r.height) {
+    h = r.height;
+    w = h * targetRatio;
+  }
+  
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  render();
+}
+window.addEventListener('resize', resize);
+
+// RENDER ENGINE
+function render() {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.width / dpr, h = canvas.height / dpr;
+
   ctx.save();
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  // Background white
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
 
-  // PDF image behind objects — fit to canvas, keep aspect
-  if (pdfImage && pdfImage.img){
-    const img = pdfImage.img;
-    const scale = Math.min(W / img.width, H / img.height);
-    const w = img.width * scale;
-    const h = img.height * scale;
-    const x = (W - w) / 2;
-    const y = (H - h) / 2;
-    ctx.drawImage(img, x, y, w, h);
+  // Background Grid
+  if (showGrid) {
+    ctx.strokeStyle = '#e5e5e5'; ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
   }
 
-  // Draw all objects
-  for (const o of objects) drawObject(o);
-
-  // Live object being drawn
-  if (liveObj) drawObject(liveObj);
-
-  // Selection handles
-  if (selectedId){
-    const o = objects.find(x => x.id === selectedId);
-    if (o) drawSelection(o);
+  // PDF
+  if (pdfImages[pdfPage]) {
+    ctx.globalAlpha = pdfOpacity;
+    const img = pdfImages[pdfPage];
+    const scale = Math.min(w / img.width, h / img.height);
+    const iw = img.width * scale, ih = img.height * scale;
+    ctx.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
+    ctx.globalAlpha = 1.0;
   }
+
+  // Synced Objects
+  objects.forEach(o => drawObj(o, false));
+  
+  // Local Viewer Notes (only visible to viewer)
+  if (!isHost) localNotes.forEach(o => drawObj(o, true));
+  
+  // Live Drawing
+  if (liveObj) drawObj(liveObj, false);
 
   ctx.restore();
 }
 
-function drawObject(o){
-  if (!o) return;
+function drawObj(o, isLocal) {
   ctx.save();
   ctx.strokeStyle = o.color;
   ctx.fillStyle = o.color;
   ctx.lineWidth = o.size;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
+  const fill = o.fill && !['line','stroke','arrow','text','highlighter'].includes(o.type);
 
-  if (o.type === 'stroke'){
-    if (!o.pts || o.pts.length < 2) { ctx.restore(); return; }
-    ctx.beginPath();
-    ctx.moveTo(o.pts[0].x, o.pts[0].y);
+  if (isLocal) ctx.globalAlpha = 0.6; // Viewer notes are slightly transparent
+
+  if (o.type === 'stroke' || o.type === 'highlighter') {
+    if (o.pts.length < 2) return;
+    if (o.type === 'highlighter') ctx.globalAlpha = isLocal ? 0.6 : 0.4;
+    ctx.beginPath(); ctx.moveTo(o.pts[0].x, o.pts[0].y);
     for (let i = 1; i < o.pts.length; i++) ctx.lineTo(o.pts[i].x, o.pts[i].y);
     ctx.stroke();
-  }
-  else if (o.type === 'line'){
-    ctx.beginPath();
-    ctx.moveTo(o.x1, o.y1);
-    ctx.lineTo(o.x2, o.y2);
-    ctx.stroke();
-  }
-  else if (o.type === 'arrow'){
+  } else if (o.type === 'line') {
+    ctx.beginPath(); ctx.moveTo(o.x1, o.y1); ctx.lineTo(o.x2, o.y2); ctx.stroke();
+  } else if (o.type === 'arrow') {
     const angle = Math.atan2(o.y2 - o.y1, o.x2 - o.x1);
-    const headLen = Math.max(10, o.size * 4);
-    ctx.beginPath();
-    ctx.moveTo(o.x1, o.y1);
-    ctx.lineTo(o.x2, o.y2);
-    ctx.stroke();
-    // arrowhead
-    ctx.beginPath();
+    const head = Math.max(10, o.size * 4);
+    ctx.beginPath(); ctx.moveTo(o.x1, o.y1); ctx.lineTo(o.x2, o.y2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(o.x2, o.y2);
+    ctx.lineTo(o.x2 - head * Math.cos(angle - Math.PI/6), o.y2 - head * Math.sin(angle - Math.PI/6));
     ctx.moveTo(o.x2, o.y2);
-    ctx.lineTo(o.x2 - headLen * Math.cos(angle - Math.PI / 6), o.y2 - headLen * Math.sin(angle - Math.PI / 6));
-    ctx.moveTo(o.x2, o.y2);
-    ctx.lineTo(o.x2 - headLen * Math.cos(angle + Math.PI / 6), o.y2 - headLen * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(o.x2 - head * Math.cos(angle + Math.PI/6), o.y2 - head * Math.sin(angle + Math.PI/6));
     ctx.stroke();
-  }
-  else if (o.type === 'rect'){
-    const x = Math.min(o.x1, o.x2), y = Math.min(o.y1, o.y2);
-    const w = Math.abs(o.x2 - o.x1), h = Math.abs(o.y2 - o.y1);
-    ctx.strokeRect(x, y, w, h);
-  }
-  else if (o.type === 'circle'){
-    const cx = (o.x1 + o.x2) / 2, cy = (o.y1 + o.y2) / 2;
+  } else if (o.type === 'rect') {
+    ctx.beginPath(); ctx.rect(o.x1, o.y1, o.x2 - o.x1, o.y2 - o.y1);
+    if (fill) ctx.fill(); else ctx.stroke();
+  } else if (o.type === 'circle') {
     const rx = Math.abs(o.x2 - o.x1) / 2, ry = Math.abs(o.y2 - o.y1) / 2;
+    const cx = o.x1 + (o.x2 - o.x1) / 2, cy = o.y1 + (o.y2 - o.y1) / 2;
+    ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    if (fill) ctx.fill(); else ctx.stroke();
+  } else if (o.type === 'triangle') {
+    const cx = o.x1 + (o.x2 - o.x1) / 2;
+    ctx.beginPath(); ctx.moveTo(o.x1, o.y2); ctx.lineTo(o.x2, o.y2); ctx.lineTo(cx, o.y1); ctx.closePath();
+    if (fill) ctx.fill(); else ctx.stroke();
+  } else if (o.type === 'diamond') {
+    const cx = o.x1 + (o.x2 - o.x1) / 2, cy = o.y1 + (o.y2 - o.y1) / 2;
+    ctx.beginPath(); ctx.moveTo(cx, o.y1); ctx.lineTo(o.x2, cy); ctx.lineTo(cx, o.y2); ctx.lineTo(o.x1, cy); ctx.closePath();
+    if (fill) ctx.fill(); else ctx.stroke();
+  } else if (o.type === 'star') {
+    const cx = o.x1 + (o.x2 - o.x1) / 2, cy = o.y1 + (o.y2 - o.y1) / 2;
+    const outerR = Math.max(Math.abs(o.x2 - o.x1), Math.abs(o.y2 - o.y1)) / 2;
+    const innerR = outerR * 0.4;
     ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  else if (o.type === 'triangle'){
-    const x1 = o.x1, y1 = o.y1, x2 = o.x2, y2 = o.y2;
-    const x3 = (x1 + x2) / 2, y3 = y1;
-    ctx.beginPath();
-    ctx.moveTo(x1, y2);
-    ctx.lineTo(x2, y2);
-    ctx.lineTo(x3, y1);
-    ctx.closePath();
-    ctx.stroke();
-  }
-  else if (o.type === 'text'){
+    for (let i = 0; i < 10; i++) {
+      const r = i % 2 === 0 ? outerR : innerR;
+      const a = i * Math.PI / 5 - Math.PI / 2;
+      const px = cx + r * Math.cos(a), py = cy + r * Math.sin(a);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath(); if (fill) ctx.fill(); else ctx.stroke();
+  } else if (o.type === 'dot') {
+    ctx.beginPath(); ctx.arc(o.x1, o.y1, Math.max(o.size, 4), 0, Math.PI * 2); ctx.fill();
+  } else if (o.type === 'text') {
     ctx.font = `600 ${o.size * 5}px Inter, sans-serif`;
     ctx.textBaseline = 'top';
-    ctx.fillText(o.text, o.x, o.y);
-    // bounding box (light)
-    const m = ctx.measureText(o.text);
-    o._bw = m.width;
-    o._bh = o.size * 5 * 1.2;
-  }
-
-  ctx.restore();
-}
-
-function drawSelection(o){
-  const box = getObjectBounds(o);
-  if (!box) return;
-  ctx.save();
-  ctx.strokeStyle = '#2b6aff';
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([5, 4]);
-  ctx.strokeRect(box.x - 4, box.y - 4, box.w + 8, box.h + 8);
-  ctx.setLineDash([]);
-  // corner handles
-  const corners = [
-    {x: box.x - 4, y: box.y - 4},
-    {x: box.x + box.w + 4, y: box.y - 4},
-    {x: box.x - 4, y: box.y + box.h + 4},
-    {x: box.x + box.w + 4, y: box.y + box.h + 4}
-  ];
-  for (const c of corners){
-    ctx.fillStyle = '#fff';
-    ctx.strokeStyle = '#2b6aff';
-    ctx.lineWidth = 2;
-    ctx.fillRect(c.x - 4, c.y - 4, 8, 8);
-    ctx.strokeRect(c.x - 4, c.y - 4, 8, 8);
+    ctx.fillText(o.text, o.x1, o.y1);
   }
   ctx.restore();
 }
 
-function getObjectBounds(o){
-  if (o.type === 'stroke'){
-    if (!o.pts || o.pts.length === 0) return null;
-    let minX = o.pts[0].x, minY = o.pts[0].y, maxX = minX, maxY = minY;
-    for (const p of o.pts){
-      if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
-      if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
-    }
-    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
-  }
-  if (o.type === 'text'){
-    // measure using offscreen
-    const c2 = document.createElement('canvas').getContext('2d');
-    c2.font = `600 ${o.size * 5}px Inter, sans-serif`;
-    const m = c2.measureText(o.text);
-    return { x: o.x, y: o.y, w: m.width, h: o.size * 5 * 1.2 };
-  }
-  const x = Math.min(o.x1, o.x2);
-  const y = Math.min(o.y1, o.y2);
-  return { x, y, w: Math.abs(o.x2 - o.x1), h: Math.abs(o.y2 - o.y1) };
-}
-
-function hitTest(o, px, py){
-  const b = getObjectBounds(o);
-  if (!b) return false;
-  const pad = 10;
-  return px >= b.x - pad && px <= b.x + b.w + pad && py >= b.y - pad && py <= b.y + b.h + pad;
-}
-
-// ============ POINTER ============
-function getPoint(e){
+// INTERACTION
+function getMousePos(e) {
   const r = canvas.getBoundingClientRect();
-  const t = e.touches ? e.touches[0] : e;
-  return { x: t.clientX - r.left, y: t.clientY - r.top };
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: clientX - r.left, y: clientY - r.top };
 }
 
-function onPointerDown(e){
-  if (!isHost) return;
-  if (editingTextId) { commitText(); return; }
+function onDown(e) {
   e.preventDefault();
-  const p = getPoint(e);
-  drawing = true;
+  const p = getMousePos(e);
+  
+  // Viewer Local Notes
+  if (!isHost) {
+    const vTool = $('vPen').classList.contains('active') ? 'pen' :
+                  $('vHighlighter').classList.contains('active') ? 'highlighter' : 'eraser';
+    isDrawing = true;
+    if (vTool === 'pen' || vTool === 'highlighter') {
+      liveObj = { type: 'stroke', color: vTool === 'pen' ? '#ff0000' : '#ffff00', size: vTool === 'pen' ? 3 : 15, pts: [p], isHigh: vTool === 'highlighter' };
+    } else {
+      // Local eraser removes local notes
+      localNotes = localNotes.filter(o => !o.pts.some(pt => Math.hypot(pt.x - p.x, pt.y - p.y) < 20));
+      render();
+      return;
+    }
+    return;
+  }
+
+  // Host Drawing
+  isDrawing = true;
   startPt = p;
 
-  // SELECT / MOVE
-  if (currentTool === 'select'){
-    // Check corners of selected object first
-    if (selectedId){
-      const o = objects.find(x => x.id === selectedId);
-      if (o){
-        const b = getObjectBounds(o);
-        const corners = [
-          {x: b.x - 4, y: b.y - 4, corner: 'tl'},
-          {x: b.x + b.w + 4, y: b.y - 4, corner: 'tr'},
-          {x: b.x - 4, y: b.y + b.h + 4, corner: 'bl'},
-          {x: b.x + b.w + 4, y: b.y + b.h + 4, corner: 'br'}
-        ];
-        for (const c of corners){
-          if (Math.abs(p.x - c.x) < 12 && Math.abs(p.y - c.y) < 12){
-            dragState = { type: 'resize', id: selectedId, corner: c.corner, orig: JSON.parse(JSON.stringify(o)), startPt: p };
-            return;
-          }
+  if (currentTool === 'select') {
+    for (let i = objects.length - 1; i >= 0; i--) {
+      const o = objects[i];
+      if (o.type === 'stroke' && o.pts.some(pt => Math.hypot(pt.x - p.x, pt.y - p.y) < 15)) {
+        liveObj = JSON.parse(JSON.stringify(o)); objects.splice(i, 1); break;
+      } else if (o.type === 'text') {
+        if (Math.abs(p.x - o.x1) < 100 && Math.abs(p.y - o.y1) < 50) {
+          liveObj = JSON.parse(JSON.stringify(o)); objects.splice(i, 1); break;
+        }
+      } else if (o.x1 !== undefined && o.x2 !== undefined) {
+        const minX = Math.min(o.x1, o.x2), maxX = Math.max(o.x1, o.x2);
+        const minY = Math.min(o.y1, o.y2), maxY = Math.max(o.y1, o.y2);
+        if (p.x > minX - 20 && p.x < maxX + 20 && p.y > minY - 20 && p.y < maxY + 20) {
+          liveObj = JSON.parse(JSON.stringify(o)); objects.splice(i, 1); break;
         }
       }
     }
-    // Find topmost object hit
-    for (let i = objects.length - 1; i >= 0; i--){
-      if (hitTest(objects[i], p.x, p.y)){
-        selectedId = objects[i].id;
-        dragState = { type: 'move', id: selectedId, startPt: p, orig: JSON.parse(JSON.stringify(objects[i])) };
-        redraw();
-        return;
-      }
-    }
-    selectedId = null;
-    redraw();
-    return;
+    if (liveObj) liveObj._offset = { x: p.x - liveObj.x1, y: p.y - liveObj.y1 };
+    render(); return;
   }
 
-  // TEXT: tap to place
-  if (currentTool === 'text'){
-    placeTextInput(p.x, p.y);
-    drawing = false;
-    return;
+  if (currentTool === 'text') {
+    const val = prompt('Enter text:');
+    if (val) { const o = { id: genId(), type: 'text', color: currentColor, size: currentSize, x1: p.x, y1: p.y, text: val }; objects.push(o); saveObj(o); render(); }
+    isDrawing = false; return;
   }
 
-  // DRAWING TOOLS
-  if (currentTool === 'pen' || currentTool === 'eraser'){
-    liveObj = {
-      id: genId(),
-      type: 'stroke',
-      color: currentTool === 'eraser' ? '#ffffff' : currentColor,
-      size: currentTool === 'eraser' ? currentSize * 4 : currentSize,
-      pts: [p]
-    };
-  } else if (currentTool === 'line' || currentTool === 'arrow' ||
-             currentTool === 'rect' || currentTool === 'circle' || currentTool === 'triangle'){
-    liveObj = {
-      id: genId(),
-      type: currentTool,
-      color: currentColor,
-      size: currentSize,
-      x1: p.x, y1: p.y, x2: p.x, y2: p.y
-    };
+  if (currentTool === 'pen' || currentTool === 'highlighter' || currentTool === 'eraser') {
+    liveObj = { id: genId(), type: currentTool === 'eraser' ? 'stroke' : currentTool, color: currentTool === 'eraser' ? '#ffffff' : currentColor, size: currentTool === 'eraser' ? currentSize * 4 : currentTool === 'highlighter' ? currentSize * 3 : currentSize, pts: [p] };
+  } else if (currentTool === 'dot') {
+    const o = { id: genId(), type: 'dot', color: currentColor, size: currentSize, x1: p.x, y1: p.y };
+    objects.push(o); saveObj(o); render(); isDrawing = false; return;
+  } else {
+    liveObj = { id: genId(), type: currentTool, color: currentColor, size: currentSize, fill: fillShape, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
   }
 }
 
-function onPointerMove(e){
-  if (!drawing || !isHost) return;
-  e.preventDefault();
-  const p = getPoint(e);
-
-  // SELECT MODE: move / resize
-  if (currentTool === 'select' && dragState){
-    const o = objects.find(x => x.id === dragState.id);
-    if (!o) return;
-    if (dragState.type === 'move'){
-      const dx = p.x - dragState.startPt.x;
-      const dy = p.y - dragState.startPt.y;
-      applyTranslate(o, dragState.orig, dx, dy);
-    } else if (dragState.type === 'resize'){
-      applyResize(o, dragState.orig, dragState.corner, p);
-    }
-    redraw();
-    return;
+function onMove(e) {
+  if (!isDrawing || !liveObj) return;
+  const p = getMousePos(e);
+  
+  if (!isHost) {
+    if (liveObj.type === 'stroke') liveObj.pts.push(p);
+    render(); return;
   }
 
-  if (!liveObj) return;
-  if (liveObj.type === 'stroke'){
+  if (liveObj.type === 'stroke') {
     liveObj.pts.push(p);
+  } else if (currentTool === 'select') {
+    const dx = p.x - startPt.x, dy = p.y - startPt.y;
+    if (liveObj.pts) liveObj.pts = liveObj.pts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
+    else { liveObj.x1 += dx; liveObj.x2 += dx; liveObj.y1 += dy; liveObj.y2 += dy; }
+    startPt = p;
   } else {
-    liveObj.x2 = p.x;
-    liveObj.y2 = p.y;
+    liveObj.x2 = p.x; liveObj.y2 = p.y;
   }
-  redraw();
+  render();
 }
 
-function onPointerUp(e){
-  if (!drawing) return;
-  drawing = false;
-
-  if (currentTool === 'select' && dragState){
-    // commit moved/resized object
-    const o = objects.find(x => x.id === dragState.id);
-    if (o) saveObject(o);
-    dragState = null;
-    return;
-  }
-
+function onUp() {
+  if (!isDrawing) return;
+  isDrawing = false;
   if (!liveObj) return;
-  // Only commit if it has meaningful size
-  if (liveObj.type === 'stroke' && liveObj.pts.length < 2){
-    liveObj = null; redraw(); return;
+  
+  if (!isHost) {
+    localNotes.push(liveObj); liveObj = null; render(); return;
   }
-  objects.push(liveObj);
-  saveObject(liveObj);
-  liveObj = null;
-  startPt = null;
-  redraw();
-}
 
-function applyTranslate(o, orig, dx, dy){
-  if (o.type === 'stroke') o.pts = orig.pts.map(p => ({ x: p.x + dx, y: p.y + dy }));
-  else if (o.type === 'text') { o.x = orig.x + dx; o.y = orig.y + dy; }
-  else { o.x1 = orig.x1 + dx; o.y1 = orig.y1 + dy; o.x2 = orig.x2 + dx; o.y2 = orig.y2 + dy; }
-}
-function applyResize(o, orig, corner, p){
-  // For simplicity: use bounding box of original, scale all coords
-  const b = (() => {
-    if (orig.type === 'stroke'){
-      let minX = orig.pts[0].x, minY = orig.pts[0].y, maxX = minX, maxY = minY;
-      for (const q of orig.pts){
-        if (q.x < minX) minX = q.x; if (q.y < minY) minY = q.y;
-        if (q.x > maxX) maxX = q.x; if (q.y > maxY) maxY = q.y;
-      }
-      return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
-    }
-    if (orig.type === 'text'){
-      const c2 = document.createElement('canvas').getContext('2d');
-      c2.font = `600 ${orig.size * 5}px Inter, sans-serif`;
-      const m = c2.measureText(orig.text);
-      return { x: orig.x, y: orig.y, w: m.width, h: orig.size * 5 * 1.2 };
-    }
-    return {
-      x: Math.min(orig.x1, orig.x2), y: Math.min(orig.y1, orig.y2),
-      w: Math.abs(orig.x2 - orig.x1), h: Math.abs(orig.y2 - orig.y1)
-    };
-  })();
-
-  let newX = b.x, newY = b.y, newW = b.w, newH = b.h;
-  if (corner === 'tl') { newX = p.x; newY = p.y; newW = b.x + b.w - p.x; newH = b.y + b.h - p.y; }
-  if (corner === 'tr') { newY = p.y; newW = p.x - b.x; newH = b.y + b.h - p.y; }
-  if (corner === 'bl') { newX = p.x; newW = b.x + b.w - p.x; newH = p.y - b.y; }
-  if (corner === 'br') { newW = p.x - b.x; newH = p.y - b.y; }
-
-  if (newW < 10) newW = 10;
-  if (newH < 10) newH = 10;
-
-  const sx = newW / b.w, sy = newH / b.h;
-
-  if (o.type === 'stroke'){
-    o.pts = orig.pts.map(q => ({
-      x: newX + (q.x - b.x) * sx,
-      y: newY + (q.y - b.y) * sy
-    }));
-  } else if (o.type === 'text'){
-    o.x = newX; o.y = newY;
-    // scale font roughly by height
-    const origFontSize = orig.size * 5;
-    const newFontSize = Math.max(8, origFontSize * sy);
-    o.size = newFontSize / 5;
+  if (currentTool === 'select') {
+    saveObj(liveObj, true);
+  } else if (liveObj.type === 'stroke' && liveObj.pts.length < 2) {
+    // ignore
   } else {
-    o.x1 = newX; o.y1 = newY;
-    o.x2 = newX + newW; o.y2 = newY + newH;
+    saveObj(liveObj);
   }
+  objects.push(liveObj); liveObj = null; render();
 }
 
-// ============ TEXT INPUT ============
-function placeTextInput(x, y){
-  const r = canvas.getBoundingClientRect();
-  textInput.style.left = (x) + 'px';
-  textInput.style.top = (y - 4) + 'px';
-  textInput.value = '';
-  textInput.classList.add('show');
-  textInput.focus();
-  editingTextId = 'new';
-}
+canvas.addEventListener('mousedown', onDown);
+canvas.addEventListener('mousemove', onMove);
+canvas.addEventListener('mouseup', onUp);
+canvas.addEventListener('mouseleave', onUp);
+canvas.addEventListener('touchstart', onDown, { passive: false });
+canvas.addEventListener('touchmove', onMove, { passive: false });
+canvas.addEventListener('touchend', onUp);
 
-function editExistingText(o){
-  const r = canvas.getBoundingClientRect();
-  textInput.style.left = o.x + 'px';
-  textInput.style.top = (o.y - 4) + 'px';
-  textInput.value = o.text;
-  textInput.classList.add('show');
-  textInput.focus();
-  editingTextId = o.id;
-}
+// FIREBASE SYNC
+function genId(){ const a=new Uint8Array(4); crypto.getRandomValues(a); return Array.from(a,n=>n.toString(16)).join(''); }
 
-function commitText(){
-  const val = textInput.value.trim();
-  textInput.classList.remove('show');
-  textInput.blur();
-  if (!val){ editingTextId = null; return; }
-
-  if (editingTextId === 'new'){
-    const o = {
-      id: genId(),
-      type: 'text',
-      color: currentColor,
-      size: currentSize,
-      x: parseFloat(textInput.style.left),
-      y: parseFloat(textInput.style.top) + 4,
-      text: val
-    };
-    objects.push(o);
-    saveObject(o);
-  } else {
-    const o = objects.find(x => x.id === editingTextId);
-    if (o){
-      o.text = val;
-      saveObject(o, true);
-    }
-  }
-  editingTextId = null;
-  redraw();
-}
-textInput.addEventListener('blur', () => { if (editingTextId) commitText(); });
-textInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter'){ e.preventDefault(); commitText(); }
-  if (e.key === 'Escape'){ textInput.value = ''; editingTextId = null; textInput.classList.remove('show'); }
-});
-
-// ============ FIREBASE ============
-function genId(){
-  const a = new Uint8Array(6); crypto.getRandomValues(a);
-  return Array.from(a, n => 'abcdefghijklmnopqrstuvwxyz0123456789'[n % 36]).join('');
-}
-
-async function saveObject(o, isUpdate){
-  if (!isHost) return;
+async function saveObj(o, isUpdate) {
   try {
     const data = JSON.parse(JSON.stringify(o));
-    delete data._bw; delete data._bh;
-    if (isUpdate){
-      await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data, { merge: true });
-    } else {
-      data.t = serverTimestamp();
-      await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data);
-    }
+    delete data._offset;
+    if (!isUpdate) data.t = serverTimestamp();
+    await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data, { merge: true });
     setStatus('ok', 'Synced');
-  } catch (e){
-    console.warn(e);
-    setStatus('err', e.code || 'save error');
-  }
+  } catch (e) { setStatus('err', 'Save failed'); }
 }
 
-async function deleteObject(id){
-  try { await deleteDoc(doc(db, 'rooms', roomId, 'objects', id)); } catch(e){ console.warn(e); }
-}
-
-async function clearAll(){
-  try {
-    const snap = await getDocs(collection(db, 'rooms', roomId, 'objects'));
-    await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
-    setStatus('ok', 'Cleared');
-  } catch(e){ console.warn(e); }
-}
-
-function subscribeObjects(){
+function subscribe() {
   const q = query(collection(db, 'rooms', roomId, 'objects'), orderBy('t'));
   onSnapshot(q, (snap) => {
-    const seen = new Set();
-    snap.forEach(d => {
-      const data = d.data();
-      delete data.t;
-      const existing = objects.findIndex(x => x.id === d.id);
-      if (existing >= 0) objects[existing] = data;
-      else objects.push(data);
-      seen.add(d.id);
-    });
-    // Remove objects that were deleted remotely
-    objects = objects.filter(o => seen.has(o.id));
-    redraw();
-    if (!isHost) setStatus('', `Watching · ${objects.length} objects`);
-  }, (err) => { console.warn(err); setStatus('err', err.code || 'error'); });
-}
+    const ids = new Set();
+    snap.forEach(d => { const data = d.data(); delete data.t; const i = objects.findIndex(o => o.id === d.id); if (i >= 0) objects[i] = data; else objects.push(data); ids.add(d.id); });
+    objects = objects.filter(o => ids.has(o.id));
+    render();
+  });
 
-// ============ PDF ============
-function compressPage(){
-  // Scale canvas content down to fit Firestore 1MB limit
-  const maxW = 1000;
-  let src = pdfRenderCanvas;
-  const scale = Math.min(1, maxW / src.width);
-  const c2 = document.createElement('canvas');
-  c2.width = Math.round(src.width * scale);
-  c2.height = Math.round(src.height * scale);
-  const c2ctx = c2.getContext('2d');
-  c2ctx.fillStyle = '#fff';
-  c2ctx.fillRect(0, 0, c2.width, c2.height);
-  c2ctx.drawImage(src, 0, 0, c2.width, c2.height);
-  return c2.toDataURL('image/jpeg', 0.5);
-}
-
-let pdfRenderCanvas = null;
-
-async function savePdfPage(){
-  if (!isHost) return;
-  try {
-    const dataUrl = compressPage();
-    const sizeKB = Math.round(dataUrl.length / 1024);
-    await setDoc(doc(db, 'rooms', roomId), {
-      pdf: dataUrl, pageNum: pdfPage, pageSize: sizeKB
-    }, { merge: true });
-    setStatus('ok', `Page · ${sizeKB}KB`);
-  } catch(e){
-    console.warn(e);
-    setStatus('err', e.code || 'page too large');
-  }
-}
-
-function subscribeRoom(){
   onSnapshot(doc(db, 'rooms', roomId), (snap) => {
     if (!snap.exists()) return;
     const data = snap.data();
-    if (data.pdf && data.pdf !== (pdfImage && pdfImage.raw)){
-      const img = new Image();
-      img.onload = () => {
-        pdfImage = { img, raw: data.pdf };
-        redraw();
-      };
-      img.src = data.pdf;
-    }
-    if (data.pdf == null && pdfImage){
-      pdfImage = null; redraw();
-    }
-    if (data.pageNum){
-      setFileMeta(`Page ${data.pageNum}${data.pageSize ? ' · ' + data.pageSize + 'KB' : ''}`);
+    if (data.pdfPage && !pdfImages[data.pdfPage] && data.pdfData) {
+      const img = new Image(); img.onload = () => { pdfImages[data.pdfPage] = img; render(); }; img.src = data.pdfData;
     }
   });
 }
 
-pdfInput.onchange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  if (file.type.startsWith('image/')){
-    const img = new Image();
-    img.onload = () => {
-      // render to offscreen
-      pdfRenderCanvas = document.createElement('canvas');
-      const maxW = 1000;
-      const scale = Math.min(1, maxW / img.width);
-      pdfRenderCanvas.width = Math.round(img.width * scale);
-      pdfRenderCanvas.height = Math.round(img.height * scale);
-      const c2 = pdfRenderCanvas.getContext('2d');
-      c2.fillStyle = '#fff';
-      c2.fillRect(0, 0, pdfRenderCanvas.width, pdfRenderCanvas.height);
-      c2.drawImage(img, 0, 0, pdfRenderCanvas.width, pdfRenderCanvas.height);
-      setFileName(file.name);
-      if (isHost) savePdfPage();
-    };
-    img.src = URL.createObjectURL(file);
-    return;
-  }
-
-  if (file.type === 'application/pdf'){
-    try {
-      const buf = await file.arrayBuffer();
-      pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-      pdfPage = 1;
-      setFileName(file.name);
-      await renderPdf();
-    } catch (err){
-      console.warn(err);
-      setFileName('Failed to read PDF');
-    }
-  }
-};
-
-async function renderPdf(){
-  if (!pdfDoc) return;
-  const page = await pdfDoc.getPage(pdfPage);
-  // Preserve rotation
-  let viewport = page.getViewport({ scale: 1 });
-  // Scale to fit reasonable size
-  const maxDim = 1200;
-  const s = Math.min(maxDim / viewport.width, maxDim / viewport.height);
-  viewport = page.getViewport({ scale: s });
-
-  pdfRenderCanvas = document.createElement('canvas');
-  pdfRenderCanvas.width = viewport.width;
-  pdfRenderCanvas.height = viewport.height;
-  const pctx = pdfRenderCanvas.getContext('2d');
-  pctx.fillStyle = '#fff';
-  pctx.fillRect(0, 0, viewport.width, viewport.height);
-
-  await page.render({ canvasContext: pctx, viewport }).promise;
-  setFileMeta(`Page ${pdfPage} of ${pdfDoc.numPages}`);
-  if (isHost) await savePdfPage();
+// UI SETUP
+function setStatus(type, text) {
+  const el = $('statusLine'); const i = el.querySelector('i');
+  el.className = 'status-line';
+  i.className = 'fa-solid ' + (type === 'ok' ? 'fa-circle-check ok' : type === 'err' ? 'fa-circle-exclamation err' : 'fa-circle-notch');
+  $('netText').textContent = text ? '· ' + text : '';
 }
 
-function setFileName(name){
-  ['fileName','fileNameM'].forEach(id => { const el = $(id); if (el) el.textContent = name || '—'; });
-  ['fileInfo','fileInfoM'].forEach(id => { const el = $(id); if (el) el.style.display = name ? 'block' : 'none'; });
-}
-function setFileMeta(text){
-  ['fileMeta','fileMetaM'].forEach(id => { const el = $(id); if (el) el.textContent = text || ''; });
-}
-
-// ============ UI ============
-function setStatus(type, text){
-  ['statusLine','statusLineM'].forEach(id => {
-    const el = $(id); if (!el) return;
-    const icon = el.querySelector('i');
-    el.classList.remove('ok','err');
-    if (type) el.classList.add(type);
-    icon.className = 'fa-solid ' + (
-      type === 'ok' ? 'fa-circle-check' :
-      type === 'err' ? 'fa-circle-exclamation' : 'fa-circle-notch'
-    );
-    const t = el.querySelector('span:last-child');
-    if (t) t.textContent = text ? ` · ${text}` : '';
-  });
-}
-
-function buildToolButtons(container, isMobile){
-  container.innerHTML = '';
-  TOOLS.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = (isMobile ? 'tool' : 'tool-btn') + (currentTool === t.id ? ' active' : '');
-    btn.dataset.tool = t.id;
-    btn.innerHTML = `<i class="fa-solid ${t.icon}"></i>` + (isMobile ? '' : t.label);
-    btn.title = t.label;
-    btn.onclick = () => setTool(t.id);
-    container.appendChild(btn);
-  });
-}
-function buildActionButtons(container, isMobile){
-  container.innerHTML = '';
-  ACTIONS.forEach(a => {
-    const btn = document.createElement('button');
-    btn.className = (isMobile ? 'tool' : 'tool-btn') + (a.id === 'clear' ? ' danger' : '');
-    btn.innerHTML = `<i class="fa-solid ${a.icon}"></i>` + (isMobile ? '' : a.label);
-    btn.title = a.label;
-    btn.onclick = () => doAction(a.id);
-    container.appendChild(btn);
-  });
-}
-function buildColors(container, isDesktop){
-  container.innerHTML = '';
-  COLORS.forEach((c, i) => {
-    const b = document.createElement('div');
-    b.className = (isDesktop ? 'swatch-lg' : 'swatch') +
-                  (c === currentColor ? ' active' : '') +
-                  (c === '#ffffff' ? ' white' : '');
-    b.style.background = c;
-    b.onclick = () => { currentColor = c; rebuildColors(); };
-    container.appendChild(b);
-  });
-}
-function rebuildColors(){
-  buildColors($('colorsD'), true);
-  buildColors($('colorsM'), false);
-}
-function setTool(id){
+function setTool(id) {
   currentTool = id;
-  // Update active states
-  document.querySelectorAll('[data-tool]').forEach(el => {
-    el.classList.toggle('active', el.dataset.tool === id);
+  document.querySelectorAll('.tool-btn, .fab-mobile .tool').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+}
+
+function buildUI() {
+  const buildT = (c, m) => {
+    c.innerHTML = '';
+    TOOLS.forEach(t => {
+      const b = document.createElement('button'); b.className = m ? 'tool' : 'tool-btn'; b.dataset.id = t.id;
+      b.innerHTML = `<i class="fa-solid ${t.icon}"></i>` + (m ? '' : t.label); b.onclick = () => setTool(t.id); c.appendChild(b);
+    });
+  };
+  buildT($('toolsGridD'), false); buildT($('toolsGridM'), true);
+
+  const buildA = (c, m) => {
+    c.innerHTML = '';
+    ACTIONS.forEach(a => {
+      const b = document.createElement('button'); b.className = m ? 'tool' : 'tool-btn';
+      b.innerHTML = `<i class="fa-solid ${a.icon}"></i>` + (m ? '' : a.label);
+      b.onclick = () => { if(a.id==='clear'){ objects=[]; render(); getDocs(collection(db,'rooms',roomId,'objects')).then(s=>s.docs.forEach(d=>deleteDoc(d.ref))); } };
+      c.appendChild(b);
+    });
+  };
+  buildA($('actionsGridD'), false); buildA($('actionsGridM'), true);
+
+  const buildC = (c, m) => {
+    c.innerHTML = '';
+    COLORS.forEach(col => {
+      const b = document.createElement('div'); b.className = (m ? 'swatch' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
+      b.style.background = col; b.onclick = () => { currentColor = col; buildUI(); }; c.appendChild(b);
+    });
+  };
+  buildC($('colorsD'), false); buildC($('colorsM'), true);
+
+  $('sizeSlider').oninput = e => { currentSize = e.target.value; $('sizeVal').textContent = currentSize + 'px'; $('sizeSliderM').value = currentSize; $('sizeValM').textContent = currentSize + 'px'; };
+  $('sizeSliderM').oninput = e => { currentSize = e.target.value; $('sizeValM').textContent = currentSize + 'px'; $('sizeSlider').value = currentSize; $('sizeVal').textContent = currentSize + 'px'; };
+
+  const bindT = (id, val, cb) => { const el = $(id); el.classList.toggle('on', val); el.onclick = () => { val = !val; el.classList.toggle('on', val); cb(val); }; };
+  bindT('fillToggle', fillShape, v => { fillShape = v; $('fillToggleM').classList.toggle('on', v); });
+  bindT('fillToggleM', fillShape, v => { fillShape = v; $('fillToggle').classList.toggle('on', v); });
+  bindT('gridToggle', showGrid, v => { showGrid = v; $('gridToggleM').classList.toggle('on', v); render(); });
+  bindT('gridToggleM', showGrid, v => { showGrid = v; $('gridToggle').classList.toggle('on', v); render(); });
+  
+  $('pdfOpacity').oninput = e => { pdfOpacity = e.target.value / 100; $('pdfOpVal').textContent = e.target.value + '%'; render(); };
+  $('pdfOpacityM').oninput = e => { pdfOpacity = e.target.value / 100; $('pdfOpValM').textContent = e.target.value + '%'; render(); };
+
+  // Viewer Tools
+  const vTools = ['vPen', 'vHighlighter', 'vEraser'];
+  vTools.forEach(id => {
+    $(id).onclick = () => {
+      vTools.forEach(v => $(v).classList.remove('active'));
+      $(id).classList.add('active');
+    };
   });
-  // Show/hide text input if switching away
-  if (editingTextId && id !== 'text') commitText();
-  // Cursor
-  canvas.style.cursor = id === 'select' ? 'default' :
-                        id === 'text' ? 'text' : 'crosshair';
-}
-function doAction(id){
-  if (id === 'clear'){
-    objects = []; selectedId = null; redraw();
-    if (isHost) clearAll();
-  }
-  if (id === 'undo'){
-    if (objects.length === 0) return;
-    const last = objects.pop();
-    redraw();
-    if (isHost) deleteObject(last.id);
-  }
-}
-
-// ============ ROOM ============
-function getRoom(){
-  const p = location.pathname.replace(/^\/|\/$/g, '');
-  return /^[a-zA-Z0-9_-]{4,32}$/.test(p) ? p : null;
-}
-function newRoom(){
-  const a = new Uint8Array(8); crypto.getRandomValues(a);
-  return Array.from(a, n => 'abcdefghijklmnopqrstuvwxyz0123456789'[n % 36]).join('');
-}
-copyBtn.onclick = async () => {
-  const link = location.origin + '/' + roomId;
-  try {
-    await navigator.clipboard.writeText(link);
-    copyBtn.classList.add('ok');
-    copyBtn.innerHTML = '<i class="fa-solid fa-check"></i><span>Copied</span>';
-    setTimeout(() => {
-      copyBtn.classList.remove('ok');
-      copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i><span>Copy</span>';
-    }, 1500);
-  } catch { prompt('Copy:', link); }
-};
-
-// ============ EVENT WIRING ============
-function wireEvents(){
-  canvas.addEventListener('mousedown', onPointerDown);
-  canvas.addEventListener('mousemove', onPointerMove);
-  canvas.addEventListener('mouseup', onPointerUp);
-  canvas.addEventListener('mouseleave', onPointerUp);
-
-  canvas.addEventListener('touchstart', onPointerDown, { passive: false });
-  canvas.addEventListener('touchmove', onPointerMove, { passive: false });
-  canvas.addEventListener('touchend', onPointerUp);
-  canvas.addEventListener('touchcancel', onPointerUp);
-
-  // Double-tap text to edit
-  let lastTap = 0;
-  canvas.addEventListener('click', (e) => {
-    if (!isHost) return;
-    if (currentTool !== 'select') return;
-    const now = Date.now();
-    if (now - lastTap < 300){
-      const p = getPoint(e);
-      for (let i = objects.length - 1; i >= 0; i--){
-        const o = objects[i];
-        if (o.type === 'text' && hitTest(o, p.x, p.y)){
-          editExistingText(o);
-          break;
-        }
-      }
-    }
-    lastTap = now;
-  });
-
-  // Size sliders
-  const sizeHandler = (v) => {
-    currentSize = +v;
-    $('sizeVal').textContent = v + 'px';
-    $('sizeValM').textContent = v + 'px';
-    $('sizeSlider').value = v;
-    $('sizeSliderM').value = v;
-  };
-  $('sizeSlider').oninput = e => sizeHandler(e.target.value);
-  $('sizeSliderM').oninput = e => sizeHandler(e.target.value);
-
-  // PDF page controls
-  const prevFn = () => { if (pdfDoc && pdfPage > 1){ pdfPage--; renderPdf(); } };
-  const nextFn = () => { if (pdfDoc && pdfPage < pdfDoc.numPages){ pdfPage++; renderPdf(); } };
-  $('prevPage').onclick = prevFn; $('prevPageM').onclick = prevFn;
-  $('nextPage').onclick = nextFn; $('nextPageM').onclick = nextFn;
-
-  const removeFn = async () => {
-    pdfDoc = null; pdfRenderCanvas = null; pdfImage = null;
-    setFileName(null); setFileMeta('');
-    redraw();
-    if (isHost) await setDoc(doc(db, 'rooms', roomId), { pdf: null, pageNum: null, pageSize: null }, { merge: true });
-  };
-  $('removeFile').onclick = removeFn;
-  $('removeFileM').onclick = removeFn;
-
-  menuBtn.onclick = () => {
-    const open = drawer.classList.contains('open');
-    drawer.classList.toggle('open', !open);
-    backdrop.classList.toggle('open', !open);
-  };
-  backdrop.onclick = () => {
-    drawer.classList.remove('open');
-    backdrop.classList.remove('open');
-  };
-
-  // Prevent scroll-while-drawing
-  document.addEventListener('touchmove', (e) => {
-    if (drawing) e.preventDefault();
-  }, { passive: false });
-}
-
-// ============ BOOT ============
-async function boot(){
-  buildToolButtons($('toolsGridD'), false);
-  buildToolButtons($('toolsGridM'), true);
-  buildActionButtons($('actionsGridD'), false);
-  buildActionButtons($('actionsGridM'), true);
-  rebuildColors();
-  wireEvents();
-
-  window.addEventListener('resize', resizeCanvas);
-  window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
-
-  await new Promise(r => requestAnimationFrame(r));
-  resizeCanvas();
-
-  const existing = getRoom();
-  if (existing){
-    isHost = false;
-    roomId = existing;
-    urlText.textContent = location.origin + '/' + roomId;
-    roleTag.textContent = 'Viewer';
-    roleTag.classList.remove('host');
-    fab.classList.add('hidden');
-    canvas.style.cursor = 'default';
-    setStatus('', 'Connected');
-  } else {
-    isHost = true;
-    roomId = newRoom();
-    history.replaceState({}, '', '/' + roomId);
-    urlText.textContent = location.origin + '/' + roomId;
-    roleTag.textContent = 'Host';
-    roleTag.classList.add('host');
-    try {
-      await setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp() }, { merge: true });
-      setStatus('ok', 'Connected');
-    } catch (e){ setStatus('err', e.code || 'error'); }
-  }
-
-  ['roomText','roomTextM'].forEach(id => { const el = $(id); if (el) el.textContent = roomId; });
-  liveDot.classList.add('on');
-
-  subscribeObjects();
-  subscribeRoom();
+  $('vPen').classList.add('active');
+  $('vClear').onclick = () => { localNotes = []; render(); };
 
   setTool('pen');
 }
 
-window.addEventListener('beforeunload', () => {});
+// PDF LOGIC
+$('pdfInput').onchange = async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  if (file.type.startsWith('image/')) {
+    const img = new Image(); img.onload = () => { pdfImages[1] = img; pdfPage = 1; pushPdf(1, img); render(); }; img.src = URL.createObjectURL(file);
+  } else if (file.type === 'application/pdf') {
+    const buf = await file.arrayBuffer(); pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise; pdfPage = 1; await renderPdfPage(1);
+  }
+};
+
+async function renderPdfPage(num) {
+  if (!pdfDoc) return;
+  const page = await pdfDoc.getPage(num); const viewport = page.getViewport({ scale: 1.5 });
+  const c = document.createElement('canvas'); c.width = viewport.width; c.height = viewport.height;
+  await page.render({ canvasContext: c.getContext('2d'), viewport }).promise;
+  const img = new Image(); img.onload = () => { pdfImages[num] = img; pushPdf(num, img); render(); }; img.src = c.toDataURL('image/jpeg', 0.7);
+}
+
+async function pushPdf(num, img) {
+  if (!isHost) return;
+  const c = document.createElement('canvas'); c.width = 800; c.height = 800 * (img.height / img.width);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  await setDoc(doc(db, 'rooms', roomId), { pdfPage: num, pdfData: c.toDataURL('image/jpeg', 0.6) }, { merge: true });
+  setStatus('ok', 'PDF Synced');
+}
+
+$('prevPage').onclick = $('prevPageM').onclick = () => { if (pdfDoc && pdfPage > 1) { pdfPage--; renderPdfPage(pdfPage); } };
+$('nextPage').onclick = $('nextPageM').onclick = () => { if (pdfDoc && pdfPage < pdfDoc.numPages) { pdfPage++; renderPdfPage(pdfPage); } };
+$('clearPdf').onclick = $('clearPdfM').onclick = () => { pdfImages = {}; pdfDoc = null; render(); if (isHost) setDoc(doc(db, 'rooms', roomId), { pdfPage: null, pdfData: null }, { merge: true }); };
+
+// BOOT
+async function boot() {
+  buildUI();
+  resize();
+
+  const path = location.pathname.replace(/^\/|\/$/g, '');
+  const existing = /^[a-zA-Z0-9_-]{4,32}$/.test(path) ? path : null;
+
+  if (existing) {
+    isHost = false; roomId = existing;
+    $('roleTag').textContent = 'Viewer'; $('sidebar').style.display = 'none'; $('fabMobile').style.display = 'none'; $('sidebarBtn').style.display = 'none';
+    $('viewerControls').classList.add('show');
+  } else {
+    isHost = true; roomId = genId(); history.replaceState({}, '', '/' + roomId);
+    $('roleTag').textContent = 'Host'; $('roleTag').classList.add('host'); $('sidebarBtn').style.display = 'flex';
+    $('viewerControls').style.display = 'none';
+    
+    $('sidebarBtn').onclick = () => $('sidebar').classList.toggle('collapsed');
+    $('mMenuBtn').onclick = () => { $('drawer').classList.add('open'); $('backdrop').style.display = 'block'; };
+    $('backdrop').onclick = () => { $('drawer').classList.remove('open'); $('backdrop').style.display = 'none'; };
+    
+    setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp() }, { merge: true });
+  }
+
+  $('urlText').textContent = location.origin + '/' + roomId; $('roomText').textContent = roomId; $('liveDot').classList.add('on');
+  subscribe();
+}
 </script>
 </body>
 </html>
