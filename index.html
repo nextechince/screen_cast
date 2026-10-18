@@ -40,24 +40,15 @@
   .header-spacer{flex:1;}
   .link-bar{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:4px 4px 4px 12px;max-width:300px;}
   .link-bar .url{font-size:11px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
-  .copy-btn{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:var(--surface-3);color:var(--text);font-size:11px;font-weight:500;}
+  .copy-btn{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:var(--surface-3);color:var(--text);font-size:11px;font-weight:500;transition:.15s;}
   .copy-btn.ok{background:var(--success);color:#001a09;}
-  .icon-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:13px;}
+  .icon-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:13px;transition:.15s;}
   .icon-btn:hover{background:var(--surface-3);color:var(--text);}
 
   /* MAIN LAYOUT */
-  .layout{flex:1;display:flex;overflow:hidden;position:relative;background:#e5e5e5;}
-  .stage{flex:1;position:relative;overflow:hidden;touch-action:none;cursor:crosshair;}
-  #mainCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
-  
-  /* VIEWER RESYNC BUTTON */
-  .resync-btn{
-    position:absolute;bottom:20px;right:20px;padding:10px 16px;background:#2b6aff;color:#fff;
-    border-radius:30px;font-weight:600;font-size:12px;display:none;align-items:center;gap:8px;
-    box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:50;animation:pop .3s ease-out;
-  }
-  .resync-btn.show{display:flex;}
-  @keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+  .layout{flex:1;display:flex;overflow:hidden;position:relative;background:#1a1a1a;}
+  .stage{flex:1;position:relative;overflow:hidden;touch-action:none;display:flex;align-items:center;justify-content:center;background:#000;}
+  #mainCanvas{background:#fff;box-shadow:0 0 20px rgba(0,0,0,0.5);touch-action:none;display:block;}
 
   /* RULER OVERLAY */
   .ruler-container{
@@ -82,13 +73,13 @@
   .tool-btn{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
     padding:8px 2px;background:var(--surface-2);border:1px solid var(--border);
-    border-radius:6px;color:var(--text-dim);font-size:9px;font-weight:500;
+    border-radius:6px;color:var(--text-dim);font-size:9px;font-weight:500;transition:.15s;
   }
   .tool-btn i{font-size:13px;}
   .tool-btn:hover{background:var(--surface-3);color:var(--text);}
   .tool-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
   .swatches-row{display:flex;gap:6px;flex-wrap:wrap;}
-  .swatch-lg{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .swatch-lg{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;}
   .swatch-lg.active{border-color:#fff;transform:scale(1.1);}
   .swatch-lg.white{border-color:#444;}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--surface-3);border-radius:2px;outline:none;}
@@ -108,9 +99,9 @@
     border-radius:16px;padding:6px;z-index:100;max-width:calc(100vw - 20px);overflow-x:auto;gap:4px;
     align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);
   }
-  .fab-mobile .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .fab-mobile .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
   .fab-mobile .tool.active{background:var(--text);color:var(--bg);}
-  .fab-mobile .divider{width:1px;height:20px;background:var(--border-2);margin:0 2px;}
+  .fab-mobile .divider{width:1px;height:20px;background:var(--border-2);margin:0 2px;flex-shrink:0;}
   
   @media(max-width:900px){
     .sidebar{display:none;}
@@ -146,9 +137,6 @@
       <div class="ruler-marks"></div>
       <div class="ruler-rotate" id="rulerRotate"></div>
     </div>
-
-    <!-- Viewer Re-sync Button -->
-    <button class="resync-btn" id="resyncBtn"><i class="fa-solid fa-sync"></i> Re-sync to Host</button>
   </div>
 
   <!-- HOST SIDEBAR -->
@@ -174,13 +162,18 @@
         <div class="toggle" id="fillToggle"></div>
       </div>
       <div class="row-toggle">
-        <span>Ruler</span>
+        <span>Ruler Overlay</span>
         <div class="toggle" id="rulerToggle"></div>
       </div>
       <div class="row-toggle">
         <span>Background Grid</span>
         <div class="toggle" id="gridToggle"></div>
       </div>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label"><i class="fa-solid fa-layer-group"></i> Actions</div>
+      <div class="tools-grid" id="actionsGridD" style="grid-template-columns:repeat(2,1fr)"></div>
     </div>
 
     <div class="side-section">
@@ -231,9 +224,15 @@
       <input type="range" id="sizeSliderM" min="1" max="30" value="4">
     </div>
     <div class="row-toggle"><span>Solid fill shapes</span><div class="toggle" id="fillToggleM"></div></div>
-    <div class="row-toggle"><span>Ruler</span><div class="toggle" id="rulerToggleM"></div></div>
+    <div class="row-toggle"><span>Ruler Overlay</span><div class="toggle" id="rulerToggleM"></div></div>
     <div class="row-toggle"><span>Background Grid</span><div class="toggle" id="gridToggleM"></div></div>
   </div>
+  
+  <div class="side-section" style="margin-top:20px">
+    <div class="side-label">Actions</div>
+    <div class="tools-grid" id="actionsGridM" style="grid-template-columns:repeat(2,1fr)"></div>
+  </div>
+
   <div class="side-section" style="margin-top:20px">
     <div class="side-label">Document</div>
     <label class="copy-btn" style="width:100%;justify-content:center;padding:10px;margin-bottom:8px;border:1px dashed var(--border-2);background:var(--surface-2);cursor:pointer;" for="pdfInput">
@@ -286,18 +285,12 @@ let currentTool = 'pen', currentColor = '#e11d48', currentSize = 4;
 let fillShape = false, showGrid = false, showRuler = false;
 let pdfOpacity = 1.0;
 
-// CAMERA SYSTEM (Zoom & Pan)
-let cam = { x: 0, y: 0, z: 1 }; // host view
-let viewerCam = { x: 0, y: 0, z: 1 }; // viewer view
-let viewerFollowing = true;
-let isDrawing = false, isPanning = false;
-let startPt = null, lastPt = null, liveObj = null;
+let isDrawing = false;
+let startPt = null, liveObj = null;
 
-// PDF
-let pdfDoc = null, pdfPage = 1, pdfRenderCanvas = null;
-let pdfImages = {}; // cache: { pageNum: Image }
+let pdfDoc = null, pdfPage = 1;
+let pdfImages = {}; 
 
-// TOOLS
 const TOOLS = [
   { id:'pen', icon:'fa-pen', label:'Pen' },
   { id:'eraser', icon:'fa-eraser', label:'Eraser' },
@@ -311,13 +304,34 @@ const TOOLS = [
   { id:'text', icon:'fa-font', label:'Text' },
   { id:'select', icon:'fa-arrow-pointer', label:'Select' }
 ];
+
+const ACTIONS = [
+  { id:'undo', icon:'fa-rotate-left', label:'Undo' },
+  { id:'clear', icon:'fa-trash', label:'Clear' }
+];
+
 const COLORS = ['#e11d48','#f59e0b','#22c55e','#2b6aff','#8b5cf6','#000000','#ffffff'];
 
-// ============ RENDER ENGINE ============
+// RENDER
 function resize() {
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = stage.clientWidth * dpr;
-  canvas.height = stage.clientHeight * dpr;
+  const r = stage.getBoundingClientRect();
+  
+  // 16:9 fixed aspect ratio
+  const targetRatio = 16 / 9;
+  let w = r.width;
+  let h = w / targetRatio;
+  
+  if (h > r.height) {
+    h = r.height;
+    w = h * targetRatio;
+  }
+  
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   render();
 }
@@ -332,51 +346,23 @@ function render() {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
-  // Apply Camera (Viewer or Host)
-  const activeCam = isHost ? cam : viewerCam;
-  ctx.translate(w / 2, h / 2);
-  ctx.scale(activeCam.z, activeCam.z);
-  ctx.translate(-activeCam.x - w / 2, -activeCam.y - h / 2);
-
-  // 1. Draw Grid
   if (showGrid) {
-    ctx.strokeStyle = '#e5e5e5';
-    ctx.lineWidth = 1 / activeCam.z;
-    const gridSize = 40;
-    const left = activeCam.x - w / 2 / activeCam.z;
-    const top = activeCam.y - h / 2 / activeCam.z;
-    const right = left + w / activeCam.z;
-    const bottom = top + h / activeCam.z;
-    
-    ctx.beginPath();
-    for (let x = Math.floor(left / gridSize) * gridSize; x < right; x += gridSize) {
-      ctx.moveTo(x, top); ctx.lineTo(x, bottom);
-    }
-    for (let y = Math.floor(top / gridSize) * gridSize; y < bottom; y += gridSize) {
-      ctx.moveTo(left, y); ctx.lineTo(right, y);
-    }
-    ctx.stroke();
-    // Axes
-    ctx.strokeStyle = '#d4d4d4'; ctx.lineWidth = 2 / activeCam.z;
-    ctx.beginPath();
-    ctx.moveTo(0, top); ctx.lineTo(0, bottom);
-    ctx.moveTo(left, 0); ctx.lineTo(right, 0);
-    ctx.stroke();
+    ctx.strokeStyle = '#e5e5e5'; ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
   }
 
-  // 2. Draw PDF
   if (pdfImages[pdfPage]) {
     ctx.globalAlpha = pdfOpacity;
     const img = pdfImages[pdfPage];
-    // Center PDF at origin (0,0)
-    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+    const scale = Math.min(w / img.width, h / img.height);
+    const iw = img.width * scale, ih = img.height * scale;
+    ctx.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
     ctx.globalAlpha = 1.0;
   }
 
-  // 3. Draw Objects
   objects.forEach(o => drawObj(o));
   if (liveObj) drawObj(liveObj);
-
   ctx.restore();
 }
 
@@ -387,12 +373,11 @@ function drawObj(o) {
   ctx.lineWidth = o.size;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  const fill = o.fill && o.type !== 'line' && o.type !== 'stroke' && o.type !== 'arrow' && o.type !== 'text';
+  const fill = o.fill && !['line','stroke','arrow','text'].includes(o.type);
 
   if (o.type === 'stroke') {
     if (o.pts.length < 2) return;
-    ctx.beginPath();
-    ctx.moveTo(o.pts[0].x, o.pts[0].y);
+    ctx.beginPath(); ctx.moveTo(o.pts[0].x, o.pts[0].y);
     for (let i = 1; i < o.pts.length; i++) ctx.lineTo(o.pts[i].x, o.pts[i].y);
     ctx.stroke();
   } else if (o.type === 'line') {
@@ -433,59 +418,39 @@ function drawObj(o) {
       const px = cx + r * Math.cos(a), py = cy + r * Math.sin(a);
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
-    ctx.closePath();
-    if (fill) ctx.fill(); else ctx.stroke();
+    ctx.closePath(); if (fill) ctx.fill(); else ctx.stroke();
   } else if (o.type === 'text') {
     ctx.font = `600 ${o.size * 5}px Inter, sans-serif`;
-    ctx.textBaseline = 'top';
-    ctx.fillText(o.text, o.x1, o.y1);
+    ctx.textBaseline = 'top'; ctx.fillText(o.text, o.x1, o.y1);
   }
   ctx.restore();
 }
 
-// ============ INTERACTION ============
+// INTERACTION
 function getMousePos(e) {
   const r = canvas.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  
-  // Convert screen to world coordinates based on camera
-  const activeCam = isHost ? cam : viewerCam;
-  const w = r.width, h = r.height;
-  
-  const worldX = (clientX - r.left - w/2) / activeCam.z + activeCam.x + w/2;
-  const worldY = (clientY - r.top - h/2) / activeCam.z + activeCam.y + h/2;
-  return { x: worldX, y: worldY, screenX: clientX, screenY: clientY };
+  return { x: clientX - r.left, y: clientY - r.top };
 }
 
 function onDown(e) {
   if (!isHost) return;
   e.preventDefault();
   const p = getMousePos(e);
-
-  // PAN (Right click or 2-finger touch)
-  if (e.button === 2 || (e.touches && e.touches.length === 2)) {
-    isPanning = true;
-    lastPt = { x: e.touches ? e.touches[0].clientX : e.clientX, y: e.touches ? e.touches[0].clientY : e.clientY };
-    return;
-  }
-
   isDrawing = true;
   startPt = p;
 
   if (currentTool === 'select') {
-    // Find top object
     for (let i = objects.length - 1; i >= 0; i--) {
       const o = objects[i];
-      // Simple hit testing (distance from path or bounding box)
       if (o.type === 'stroke' && o.pts.some(pt => Math.hypot(pt.x - p.x, pt.y - p.y) < 15)) {
         liveObj = JSON.parse(JSON.stringify(o)); objects.splice(i, 1); break;
       } else if (o.type === 'text') {
-        // rough box check
         if (Math.abs(p.x - o.x1) < 100 && Math.abs(p.y - o.y1) < 50) {
           liveObj = JSON.parse(JSON.stringify(o)); objects.splice(i, 1); break;
         }
-      } else if (o.x1 && o.x2) { // shapes
+      } else if (o.x1 !== undefined) {
         const minX = Math.min(o.x1, o.x2), maxX = Math.max(o.x1, o.x2);
         const minY = Math.min(o.y1, o.y2), maxY = Math.max(o.y1, o.y2);
         if (p.x > minX - 20 && p.x < maxX + 20 && p.y > minY - 20 && p.y < maxY + 20) {
@@ -493,22 +458,13 @@ function onDown(e) {
         }
       }
     }
-    if (liveObj) {
-      liveObj._offsetX = p.x - liveObj.x1;
-      liveObj._offsetY = p.y - liveObj.y1;
-      render();
-    }
-    return;
+    render(); return;
   }
 
   if (currentTool === 'text') {
     const val = prompt('Enter text:');
-    if (val) {
-      const o = { id: genId(), type: 'text', color: currentColor, size: currentSize, x1: p.x, y1: p.y, text: val };
-      objects.push(o); saveObj(o); render();
-    }
-    isDrawing = false;
-    return;
+    if (val) { const o = { id: genId(), type: 'text', color: currentColor, size: currentSize, x1: p.x, y1: p.y, text: val }; objects.push(o); saveObj(o); render(); }
+    isDrawing = false; return;
   }
 
   if (currentTool === 'pen' || currentTool === 'eraser') {
@@ -519,86 +475,34 @@ function onDown(e) {
 }
 
 function onMove(e) {
-  if (!isHost) return;
-  const p = getMousePos(e);
-
-  if (isPanning) {
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    cam.x -= (cx - lastPt.x) / cam.z;
-    cam.y -= (cy - lastPt.y) / cam.z;
-    lastPt = { x: cx, y: cy };
-    render(); return;
-  }
-
-  if (!isDrawing || !liveObj) return;
+  if (!isDrawing || !liveObj || !isHost) return;
   e.preventDefault();
+  const p = getMousePos(e);
 
   if (liveObj.type === 'stroke') {
     liveObj.pts.push(p);
-  } else if (liveObj.type === 'text') {
-    // move text
   } else if (currentTool === 'select') {
-    const dx = p.x - startPt.x;
-    const dy = p.y - startPt.y;
-    if (liveObj.pts) {
-      liveObj.pts = liveObj.pts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
-    } else {
-      liveObj.x1 += dx; liveObj.x2 += dx; liveObj.y1 += dy; liveObj.y2 += dy;
-    }
+    const dx = p.x - startPt.x, dy = p.y - startPt.y;
+    if (liveObj.pts) liveObj.pts = liveObj.pts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
+    else { liveObj.x1 += dx; liveObj.x2 += dx; liveObj.y1 += dy; liveObj.y2 += dy; }
     startPt = p;
   } else {
-    liveObj.x2 = p.x;
-    liveObj.y2 = p.y;
+    liveObj.x2 = p.x; liveObj.y2 = p.y;
   }
   render();
 }
 
 function onUp(e) {
-  if (!isHost) return;
-  if (isPanning) { isPanning = false; return; }
   if (!isDrawing) return;
   isDrawing = false;
+  if (!liveObj) return;
   
-  if (liveObj) {
-    if (currentTool === 'select') {
-      // Just update position
-      saveObj(liveObj, true);
-    } else if (liveObj.type === 'stroke' && liveObj.pts.length < 2) {
-      // ignore dot
-    } else {
-      saveObj(liveObj);
-    }
-    objects.push(liveObj);
-    liveObj = null;
-    render();
-  }
+  if (currentTool === 'select') saveObj(liveObj, true);
+  else if (liveObj.type === 'stroke' && liveObj.pts.length < 2) { /* ignore */ }
+  else saveObj(liveObj);
+
+  objects.push(liveObj); liveObj = null; render();
 }
-
-// Wheel zoom (Desktop)
-canvas.addEventListener('wheel', (e) => {
-  if (!isHost) return;
-  e.preventDefault();
-  const zoom = e.deltaY > 0 ? 0.9 : 1.1;
-  cam.z = Math.max(0.2, Math.min(5, cam.z * zoom));
-  render();
-}, { passive: false });
-
-// Pinch zoom (Mobile)
-let lastPinchDist = 0;
-canvas.addEventListener('touchmove', (e) => {
-  if (!isHost) return;
-  if (e.touches.length === 2) {
-    e.preventDefault();
-    const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-    if (lastPinchDist) {
-      cam.z = Math.max(0.2, Math.min(5, cam.z * (dist / lastPinchDist)));
-      render();
-    }
-    lastPinchDist = dist;
-  }
-}, { passive: false });
-canvas.addEventListener('touchend', () => { lastPinchDist = 0; });
 
 canvas.addEventListener('mousedown', onDown);
 canvas.addEventListener('mousemove', onMove);
@@ -607,74 +511,56 @@ canvas.addEventListener('mouseleave', onUp);
 canvas.addEventListener('touchstart', onDown, { passive: false });
 canvas.addEventListener('touchmove', onMove, { passive: false });
 canvas.addEventListener('touchend', onUp);
-canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-// ============ FIREBASE & SYNC ============
+// FIREBASE
 function genId(){ const a=new Uint8Array(4); crypto.getRandomValues(a); return Array.from(a,n=>n.toString(16)).join(''); }
 
 async function saveObj(o, isUpdate) {
-  if (!isHost) return;
   try {
     const data = JSON.parse(JSON.stringify(o));
-    delete data._offsetX; delete data._offsetY;
     if (!isUpdate) data.t = serverTimestamp();
     await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data, { merge: true });
-    if (isHost) { broadcastCam(); setStatus('ok', 'Synced'); }
+    setStatus('ok', 'Synced');
   } catch (e) { setStatus('err', 'Save failed'); }
 }
 
-async function deleteObj(id) {
-  try { await deleteDoc(doc(db, 'rooms', roomId, 'objects', id)); } catch(e){}
-}
-
-// Sync Camera to Viewers
-function broadcastCam() {
-  if (!isHost) return;
-  setDoc(doc(db, 'rooms', roomId), { cam: { x: cam.x, y: cam.y, z: cam.z } }, { merge: true });
+async function doAction(id) {
+  if (id === 'undo') {
+    if (objects.length === 0) return;
+    const last = objects.pop();
+    render();
+    try { await deleteDoc(doc(db, 'rooms', roomId, 'objects', last.id)); } catch(e){}
+  } else if (id === 'clear') {
+    if (!confirm('Clear the whole board?')) return;
+    objects = []; render();
+    try {
+      const snap = await getDocs(collection(db, 'rooms', roomId, 'objects'));
+      await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+    } catch(e){}
+  }
 }
 
 function subscribe() {
-  // Objects
   const q = query(collection(db, 'rooms', roomId, 'objects'), orderBy('t'));
   onSnapshot(q, (snap) => {
     const ids = new Set();
-    snap.forEach(d => {
-      const data = d.data(); delete data.t;
-      const i = objects.findIndex(o => o.id === d.id);
-      if (i >= 0) objects[i] = data; else objects.push(data);
-      ids.add(d.id);
-    });
+    snap.forEach(d => { const data = d.data(); delete data.t; const i = objects.findIndex(o => o.id === d.id); if (i >= 0) objects[i] = data; else objects.push(data); ids.add(d.id); });
     objects = objects.filter(o => ids.has(o.id));
-    if (!isHost) render();
+    render();
   });
 
-  // Room Meta (Camera, PDF)
   onSnapshot(doc(db, 'rooms', roomId), (snap) => {
     if (!snap.exists()) return;
     const data = snap.data();
-    
-    // Host Camera Update (Viewers only)
-    if (!isHost && data.cam && viewerFollowing) {
-      viewerCam = { ...data.cam };
-      render();
-    }
-
-    // PDF Update
-    if (data.pdfPage && !pdfImages[data.pdfPage]) {
-      // Load from cache if possible, else download
-      if (data.pdfData) {
-        const img = new Image();
-        img.onload = () => { pdfImages[data.pdfPage] = img; render(); };
-        img.src = data.pdfData;
-      }
+    if (data.pdfPage && !pdfImages[data.pdfPage] && data.pdfData) {
+      const img = new Image(); img.onload = () => { pdfImages[data.pdfPage] = img; render(); }; img.src = data.pdfData;
     }
   });
 }
 
-// ============ UI SETUP ============
+// UI SETUP
 function setStatus(type, text) {
-  const el = $('statusLine');
-  const i = el.querySelector('i');
+  const el = $('statusLine'); const i = el.querySelector('i');
   el.className = 'status-line';
   i.className = 'fa-solid ' + (type === 'ok' ? 'fa-circle-check ok' : type === 'err' ? 'fa-circle-exclamation err' : 'fa-circle-notch');
   $('netText').textContent = text ? '· ' + text : '';
@@ -682,7 +568,7 @@ function setStatus(type, text) {
 
 function setTool(id) {
   currentTool = id;
-  document.querySelectorAll('.tool-btn, .tool').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+  document.querySelectorAll('.tool-btn, .fab-mobile .tool').forEach(el => el.classList.toggle('active', el.dataset.id === id));
 }
 
 function buildUI() {
@@ -690,115 +576,75 @@ function buildUI() {
   const buildT = (c, m) => {
     c.innerHTML = '';
     TOOLS.forEach(t => {
-      const b = document.createElement('button');
-      b.className = m ? 'tool' : 'tool-btn';
-      b.dataset.id = t.id;
-      b.innerHTML = `<i class="fa-solid ${t.icon}"></i>` + (m ? '' : t.label);
-      b.onclick = () => setTool(t.id);
+      const b = document.createElement('button'); b.className = m ? 'tool' : 'tool-btn'; b.dataset.id = t.id;
+      b.innerHTML = `<i class="fa-solid ${t.icon}"></i>` + (m ? '' : t.label); b.onclick = () => setTool(t.id); c.appendChild(b);
+    });
+  };
+  buildT($('toolsGridD'), false); buildT($('toolsGridM'), true);
+
+  // Actions
+  const buildA = (c, m) => {
+    c.innerHTML = '';
+    ACTIONS.forEach(a => {
+      const b = document.createElement('button'); b.className = m ? 'tool' : 'tool-btn';
+      b.innerHTML = `<i class="fa-solid ${a.icon}"></i>` + (m ? '' : a.label);
+      b.onclick = () => doAction(a.id);
       c.appendChild(b);
     });
   };
-  buildT($('toolsGridD'), false);
-  buildT($('toolsGridM'), true);
+  buildA($('actionsGridD'), false); buildA($('actionsGridM'), true);
 
   // Colors
   const buildC = (c, m) => {
     c.innerHTML = '';
     COLORS.forEach(col => {
-      const b = document.createElement('div');
-      b.className = (m ? 'swatch-lg' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
-      b.style.background = col;
-      b.onclick = () => { currentColor = col; buildUI(); };
-      c.appendChild(b);
+      const b = document.createElement('div'); b.className = (m ? 'swatch' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
+      b.style.background = col; b.onclick = () => { currentColor = col; buildUI(); }; c.appendChild(b);
     });
   };
-  buildC($('colorsD'), false);
-  buildC($('colorsM'), true);
-  
+  buildC($('colorsD'), false); buildC($('colorsM'), true);
+
   // Sliders
   $('sizeSlider').oninput = e => { currentSize = e.target.value; $('sizeVal').textContent = currentSize + 'px'; $('sizeSliderM').value = currentSize; $('sizeValM').textContent = currentSize + 'px'; };
   $('sizeSliderM').oninput = e => { currentSize = e.target.value; $('sizeValM').textContent = currentSize + 'px'; $('sizeSlider').value = currentSize; $('sizeVal').textContent = currentSize + 'px'; };
-  
-  // Toggles
-  const bindToggle = (id, val, cb) => {
-    const el = $(id);
-    el.classList.toggle('on', val);
-    el.onclick = () => { val = !val; el.classList.toggle('on', val); cb(val); };
-  };
-  bindToggle('fillToggle', fillShape, v => { fillShape = v; $('fillToggleM').classList.toggle('on', v); });
-  bindToggle('fillToggleM', fillShape, v => { fillShape = v; $('fillToggle').classList.toggle('on', v); });
-  bindToggle('gridToggle', showGrid, v => { showGrid = v; $('gridToggleM').classList.toggle('on', v); render(); });
-  bindToggle('gridToggleM', showGrid, v => { showGrid = v; $('gridToggle').classList.toggle('on', v); render(); });
-  bindToggle('rulerToggle', showRuler, v => { showRuler = v; rulerEl.classList.toggle('show', v); $('rulerToggleM').classList.toggle('on', v); });
-  bindToggle('rulerToggleM', showRuler, v => { showRuler = v; rulerEl.classList.toggle('show', v); $('rulerToggle').classList.toggle('on', v); });
-  
-  // PDF Opacity
   $('pdfOpacity').oninput = e => { pdfOpacity = e.target.value / 100; $('pdfOpVal').textContent = e.target.value + '%'; render(); };
   $('pdfOpacityM').oninput = e => { pdfOpacity = e.target.value / 100; $('pdfOpValM').textContent = e.target.value + '%'; render(); };
+
+  // Toggles
+  const bindT = (id, val, cb) => { const el = $(id); el.classList.toggle('on', val); el.onclick = () => { val = !val; el.classList.toggle('on', val); cb(val); }; };
+  bindT('fillToggle', fillShape, v => { fillShape = v; $('fillToggleM').classList.toggle('on', v); });
+  bindT('fillToggleM', fillShape, v => { fillShape = v; $('fillToggle').classList.toggle('on', v); });
+  bindT('gridToggle', showGrid, v => { showGrid = v; $('gridToggleM').classList.toggle('on', v); render(); });
+  bindT('gridToggleM', showGrid, v => { showGrid = v; $('gridToggle').classList.toggle('on', v); render(); });
+  bindT('rulerToggle', showRuler, v => { showRuler = v; rulerEl.classList.toggle('show', v); $('rulerToggleM').classList.toggle('on', v); });
+  bindT('rulerToggleM', showRuler, v => { showRuler = v; rulerEl.classList.toggle('show', v); $('rulerToggle').classList.toggle('on', v); });
 
   setTool('pen');
 }
 
-// Ruler Drag
-let rulerDrag = false, rulerOffset = {x:0,y:0}, rulerRotate = false, rulerAngle = 0;
-rulerEl.addEventListener('mousedown', e => {
-  if (e.target.id === 'rulerRotate') { rulerRotate = true; }
-  else { rulerDrag = true; rulerOffset = { x: e.clientX - rulerEl.offsetLeft, y: e.clientY - rulerEl.offsetTop }; }
-});
-window.addEventListener('mousemove', e => {
-  if (rulerDrag) { rulerEl.style.left = (e.clientX - rulerOffset.x) + 'px'; rulerEl.style.top = (e.clientY - rulerOffset.y) + 'px'; rulerEl.style.transform = 'none'; }
-  if (rulerRotate) { rulerAngle = Math.atan2(e.clientY - (rulerEl.offsetTop + 20), e.clientX - (rulerEl.offsetLeft + 150)) * 180 / Math.PI; rulerEl.style.transform = `rotate(${rulerAngle}deg)`; }
-});
-window.addEventListener('mouseup', () => { rulerDrag = false; rulerRotate = false; });
-
-// ============ PDF LOGIC ============
+// PDF
 $('pdfInput').onchange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
+  const file = e.target.files[0]; if (!file) return;
   if (file.type.startsWith('image/')) {
-    const img = new Image();
-    img.onload = () => {
-      pdfImages[1] = img;
-      pdfPage = 1;
-      if (isHost) pushPdfToDb(1, img);
-      render();
-    };
-    img.src = URL.createObjectURL(file);
+    const img = new Image(); img.onload = () => { pdfImages[1] = img; pdfPage = 1; pushPdf(1, img); render(); }; img.src = URL.createObjectURL(file);
   } else if (file.type === 'application/pdf') {
-    const buf = await file.arrayBuffer();
-    pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-    pdfPage = 1;
-    await renderPdfPage(1);
+    const buf = await file.arrayBuffer(); pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise; pdfPage = 1; await renderPdfPage(1);
   }
 };
 
 async function renderPdfPage(num) {
   if (!pdfDoc) return;
-  const page = await pdfDoc.getPage(num);
-  const viewport = page.getViewport({ scale: 1.5 });
-  const c = document.createElement('canvas');
-  c.width = viewport.width; c.height = viewport.height;
+  const page = await pdfDoc.getPage(num); const viewport = page.getViewport({ scale: 1.5 });
+  const c = document.createElement('canvas'); c.width = viewport.width; c.height = viewport.height;
   await page.render({ canvasContext: c.getContext('2d'), viewport }).promise;
-  
-  const img = new Image();
-  img.onload = () => {
-    pdfImages[num] = img;
-    if (isHost) pushPdfToDb(num, img);
-    render();
-  };
-  img.src = c.toDataURL('image/jpeg', 0.7);
+  const img = new Image(); img.onload = () => { pdfImages[num] = img; pushPdf(num, img); render(); }; img.src = c.toDataURL('image/jpeg', 0.7);
 }
 
-async function pushPdfToDb(num, img) {
+async function pushPdf(num, img) {
   if (!isHost) return;
-  // Compress for Firestore 1MB limit
-  const c = document.createElement('canvas');
-  c.width = 800; c.height = 800 * (img.height / img.width);
+  const c = document.createElement('canvas'); c.width = 800; c.height = 800 * (img.height / img.width);
   c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-  const dataUrl = c.toDataURL('image/jpeg', 0.6);
-  
-  await setDoc(doc(db, 'rooms', roomId), { pdfPage: num, pdfData: dataUrl }, { merge: true });
+  await setDoc(doc(db, 'rooms', roomId), { pdfPage: num, pdfData: c.toDataURL('image/jpeg', 0.6) }, { merge: true });
   setStatus('ok', 'PDF Synced');
 }
 
@@ -806,7 +652,18 @@ $('prevPage').onclick = $('prevPageM').onclick = () => { if (pdfDoc && pdfPage >
 $('nextPage').onclick = $('nextPageM').onclick = () => { if (pdfDoc && pdfPage < pdfDoc.numPages) { pdfPage++; renderPdfPage(pdfPage); } };
 $('clearPdf').onclick = $('clearPdfM').onclick = () => { pdfImages = {}; pdfDoc = null; render(); if (isHost) setDoc(doc(db, 'rooms', roomId), { pdfPage: null, pdfData: null }, { merge: true }); };
 
-// ============ BOOT ============
+// COPY BUTTON
+$('copyBtn').onclick = async () => {
+  const link = location.origin + '/' + roomId;
+  try {
+    await navigator.clipboard.writeText(link);
+    $('copyBtn').classList.add('ok');
+    $('copyBtn').innerHTML = '<i class="fa-solid fa-check"></i><span>Copied</span>';
+    setTimeout(() => { $('copyBtn').classList.remove('ok'); $('copyBtn').innerHTML = '<i class="fa-regular fa-copy"></i><span>Copy</span>'; }, 1500);
+  } catch { prompt('Copy this link:', link); }
+};
+
+// BOOT
 async function boot() {
   buildUI();
   resize();
@@ -815,63 +672,24 @@ async function boot() {
   const existing = /^[a-zA-Z0-9_-]{4,32}$/.test(path) ? path : null;
 
   if (existing) {
-    isHost = false;
-    roomId = existing;
-    $('roleTag').textContent = 'Viewer';
-    $('sidebar').style.display = 'none';
-    $('fabMobile').style.display = 'none';
-    $('sidebarBtn').style.display = 'none';
-    $('resyncBtn').style.display = 'flex';
+    isHost = false; roomId = existing;
+    $('roleTag').textContent = 'Viewer'; $('sidebar').style.display = 'none'; $('fabMobile').style.display = 'none'; $('sidebarBtn').style.display = 'none';
     canvas.style.cursor = 'default';
-    
-    // Viewer Zoom/Pan
-    canvas.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      viewerFollowing = false;
-      $('resyncBtn').classList.add('show');
-      const zoom = e.deltaY > 0 ? 0.9 : 1.1;
-      viewerCam.z = Math.max(0.2, Math.min(5, viewerCam.z * zoom));
-      render();
-    }, { passive: false });
-
-    $('resyncBtn').onclick = () => {
-      viewerFollowing = true;
-      $('resyncBtn').classList.remove('show');
-      // Next room update will snap camera
-    };
   } else {
-    isHost = true;
-    roomId = genId();
-    history.replaceState({}, '', '/' + roomId);
-    $('roleTag').textContent = 'Host';
-    $('roleTag').classList.add('host');
-    $('sidebarBtn').style.display = 'flex';
-    $('resyncBtn').style.display = 'none';
+    isHost = true; roomId = genId(); history.replaceState({}, '', '/' + roomId);
+    $('roleTag').textContent = 'Host'; $('roleTag').classList.add('host'); $('sidebarBtn').style.display = 'flex';
     
-    // Sidebar Toggle
+    // Fix the top 3-bar menu button
     $('sidebarBtn').onclick = () => $('sidebar').classList.toggle('collapsed');
+    $('mMenuBtn').onclick = () => { $('drawer').classList.add('open'); $('backdrop').style.display = 'block'; };
+    $('backdrop').onclick = () => { $('drawer').classList.remove('open'); $('backdrop').style.display = 'none'; };
     
-    // Mobile Drawer
-    $('mMenuBtn').onclick = () => {
-      $('drawer').style.transform = 'translateY(0)';
-      $('backdrop').style.display = 'block';
-    };
-    $('backdrop').onclick = () => {
-      $('drawer').style.transform = 'translateY(100%)';
-      $('backdrop').style.display = 'none';
-    };
-
-    setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp(), cam: {x:0,y:0,z:1} }, { merge: true });
+    setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp() }, { merge: true });
   }
 
-  $('urlText').textContent = location.origin + '/' + roomId;
-  $('roomText').textContent = roomId;
-  $('liveDot').classList.add('on');
-
+  $('urlText').textContent = location.origin + '/' + roomId; $('roomText').textContent = roomId; $('liveDot').classList.add('on');
   subscribe();
 }
-
-window.addEventListener('beforeunload', () => {});
 </script>
 </body>
 </html>
