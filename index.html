@@ -50,18 +50,6 @@
   .stage{flex:1;position:relative;overflow:hidden;touch-action:none;display:flex;align-items:center;justify-content:center;background:#fff;}
   #mainCanvas{background:#fff;touch-action:none;display:block;width:100%;height:100%;}
 
-  /* RULER OVERLAY */
-  .ruler-container{
-    position:absolute;top:50%;left:50%;width:300px;height:40px;
-    background:rgba(255,255,255,0.85);border:1px solid #999;border-radius:4px;
-    display:none;z-index:40;cursor:move;transform-origin:center;
-    box-shadow:0 4px 12px rgba(0,0,0,.15);backdrop-filter:blur(4px);
-  }
-  .ruler-container.show{display:block;}
-  .ruler-marks{width:100%;height:100%;background-image:repeating-linear-gradient(90deg, transparent, transparent 9px, #666 9px, #666 10px);}
-  .ruler-marks::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:20px;background-image:repeating-linear-gradient(90deg, transparent, transparent 4px, #999 4px, #999 5px);}
-  .ruler-rotate{position:absolute;right:-10px;top:-10px;width:20px;height:20px;background:#2b6aff;border-radius:50%;cursor:crosshair;}
-
   /* SIDEBAR (DESKTOP) */
   .sidebar{
     width:310px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);
@@ -95,11 +83,11 @@
   /* MOBILE TOOLBAR */
   .fab-mobile{
     display:none;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);
-    background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border:1px solid var(--border-2);
-    border-radius:16px;padding:8px;z-index:100;width:calc(100vw - 20px);max-width:500px;
-    flex-direction:column;gap:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);
+    background:rgba(10,10,10,.96);backdrop-filter:blur(10px);border:1px solid var(--border-2);
+    border-radius:16px;padding:8px;z-index:100;width:calc(100vw - 24px);max-width:480px;
+    flex-direction:column;gap:8px;box-shadow:0 10px 30px rgba(0,0,0,.6);
   }
-  .fab-row{display:flex;gap:6px;align-items:center;justify-content:center;width:100%;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+  .fab-row{display:flex;gap:6px;align-items:center;justify-content:center;width:100%;overflow-x:auto;scrollbar-width:none;}
   .fab-row::-webkit-scrollbar{display:none;}
   .fab-mobile .tool{width:34px;height:34px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:.15s;}
   .fab-mobile .tool.active{background:var(--text);color:var(--bg);}
@@ -142,12 +130,6 @@
 <div class="layout">
   <div class="stage" id="stage">
     <canvas id="mainCanvas"></canvas>
-    
-    <!-- Ruler Overlay -->
-    <div class="ruler-container" id="ruler">
-      <div class="ruler-marks"></div>
-      <div class="ruler-rotate" id="rulerRotate"></div>
-    </div>
   </div>
 
   <!-- HOST SIDEBAR -->
@@ -172,14 +154,6 @@
         <span>Solid fill shapes</span>
         <div class="toggle" id="fillToggle"></div>
       </div>
-      <div class="row-toggle">
-        <span>Ruler Overlay</span>
-        <div class="toggle" id="rulerToggle"></div>
-      </div>
-      <div class="row-toggle">
-        <span>Background Grid</span>
-        <div class="toggle" id="gridToggle"></div>
-      </div>
     </div>
 
     <div class="side-section">
@@ -203,23 +177,14 @@
         <button class="tool-btn" id="clearPdf" style="flex:1;padding:10px"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>
-
-    <div class="side-section">
-      <div class="side-label"><i class="fa-solid fa-server"></i> Status</div>
-      <div class="status-line" id="statusLine">
-        <i class="fa-solid fa-circle-notch"></i>
-        <span class="room" id="roomText">—</span>
-        <span id="netText" style="margin-left:auto"></span>
-      </div>
-    </div>
   </aside>
 </div>
 
-<!-- MOBILE FAB -->
+<!-- MOBILE TOOLBAR (FIXED) -->
 <div class="fab-mobile" id="fabMobile">
-  <!-- Row 1: Colors -->
-  <div class="fab-row" id="colorsM" style="border-bottom:1px solid var(--border); padding-bottom:8px;"></div>
-  <!-- Row 2: Tools -->
+  <!-- ROW 1: COLORS -->
+  <div class="fab-row" id="colorsM" style="padding-bottom:6px; border-bottom:1px solid var(--border);"></div>
+  <!-- ROW 2: TOOLS -->
   <div class="fab-row">
     <div id="toolsGridM" style="display:flex;gap:4px"></div>
     <div class="divider"></div>
@@ -231,7 +196,6 @@
 <div class="drawer-backdrop" id="backdrop"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-handle"></div>
-  
   <div class="side-section">
     <div class="side-label">Properties</div>
     <div style="margin-bottom:10px">
@@ -239,8 +203,6 @@
       <input type="range" id="sizeSliderM" min="1" max="30" value="4">
     </div>
     <div class="row-toggle"><span>Solid fill shapes</span><div class="toggle" id="fillToggleM"></div></div>
-    <div class="row-toggle"><span>Ruler Overlay</span><div class="toggle" id="rulerToggleM"></div></div>
-    <div class="row-toggle"><span>Background Grid</span><div class="toggle" id="gridToggleM"></div></div>
   </div>
   
   <div class="side-section" style="margin-top:20px">
@@ -291,13 +253,12 @@ document.head.appendChild(pdfjsScript);
 const $ = id => document.getElementById(id);
 const canvas = $('mainCanvas'), ctx = canvas.getContext('2d');
 const stage = $('stage');
-const rulerEl = $('ruler');
 
 // STATE
 let roomId = null, isHost = false;
 let objects = [];
 let currentTool = 'pen', currentColor = '#e11d48', currentSize = 4;
-let fillShape = false, showGrid = false, showRuler = false;
+let fillShape = false;
 let pdfOpacity = 1.0;
 
 let isDrawing = false;
@@ -350,12 +311,6 @@ function render() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
-
-  if (showGrid) {
-    ctx.strokeStyle = '#e5e5e5'; ctx.lineWidth = 1;
-    for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
-    for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
-  }
 
   if (pdfImages[pdfPage]) {
     ctx.globalAlpha = pdfOpacity;
@@ -546,8 +501,7 @@ async function saveObj(o, isUpdate) {
     const data = JSON.parse(JSON.stringify(o));
     if (!isUpdate) data.t = serverTimestamp();
     await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data, { merge: true });
-    setStatus('ok', 'Synced');
-  } catch (e) { setStatus('err', 'Save failed'); }
+  } catch (e) { console.warn('save failed', e); }
 }
 
 async function doAction(id) {
@@ -585,14 +539,6 @@ function subscribe() {
 }
 
 // UI SETUP
-function setStatus(type, text) {
-  const el = $('statusLine'); if(!el) return;
-  const i = el.querySelector('i');
-  el.className = 'status-line';
-  i.className = 'fa-solid ' + (type === 'ok' ? 'fa-circle-check ok' : type === 'err' ? 'fa-circle-exclamation err' : 'fa-circle-notch');
-  $('netText').textContent = text ? '· ' + text : '';
-}
-
 function setTool(id) {
   currentTool = id;
   document.querySelectorAll('.tool-btn, .fab-mobile .tool').forEach(el => el.classList.toggle('active', el.dataset.id === id));
@@ -650,10 +596,6 @@ function buildUI() {
   const bindT = (id, val, cb) => { const el = $(id); if(!el) return; el.classList.toggle('on', val); el.onclick = () => { val = !val; el.classList.toggle('on', val); cb(val); }; };
   bindT('fillToggle', fillShape, v => { fillShape = v; $('fillToggleM').classList.toggle('on', v); });
   bindT('fillToggleM', fillShape, v => { fillShape = v; $('fillToggle').classList.toggle('on', v); });
-  bindT('gridToggle', showGrid, v => { showGrid = v; $('gridToggleM').classList.toggle('on', v); render(); });
-  bindT('gridToggleM', showGrid, v => { showGrid = v; $('gridToggle').classList.toggle('on', v); render(); });
-  bindT('rulerToggle', showRuler, v => { showRuler = v; rulerEl.classList.toggle('show', v); $('rulerToggleM').classList.toggle('on', v); });
-  bindT('rulerToggleM', showRuler, v => { showRuler = v; rulerEl.classList.toggle('show', v); $('rulerToggle').classList.toggle('on', v); });
 
   setTool('pen');
 }
@@ -681,7 +623,6 @@ async function pushPdf(num, img) {
   const c = document.createElement('canvas'); c.width = 800; c.height = 800 * (img.height / img.width);
   c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
   await setDoc(doc(db, 'rooms', roomId), { pdfPage: num, pdfData: c.toDataURL('image/jpeg', 0.6) }, { merge: true });
-  setStatus('ok', 'PDF Synced');
 }
 
 $('prevPage').onclick = $('prevPageM').onclick = () => { if (pdfDoc && pdfPage > 1) { pdfPage--; renderPdfPage(pdfPage); } };
@@ -716,15 +657,8 @@ async function boot() {
     $('roleTag').textContent = 'Host'; $('roleTag').classList.add('host'); $('sidebarBtn').style.display = 'flex';
     
     $('sidebarBtn').onclick = () => $('sidebar').classList.toggle('collapsed');
-    
-    $('mMenuBtn').onclick = () => { 
-      $('drawer').classList.add('open'); 
-      $('backdrop').style.display = 'block'; 
-    };
-    $('backdrop').onclick = () => { 
-      $('drawer').classList.remove('open'); 
-      $('backdrop').style.display = 'none'; 
-    };
+    $('mMenuBtn').onclick = () => { $('drawer').classList.add('open'); $('backdrop').style.display = 'block'; };
+    $('backdrop').onclick = () => { $('drawer').classList.remove('open'); $('backdrop').style.display = 'none'; };
     
     setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp() }, { merge: true });
   }
