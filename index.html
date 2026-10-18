@@ -180,11 +180,9 @@
   </aside>
 </div>
 
-<!-- MOBILE TOOLBAR (FIXED) -->
+<!-- MOBILE TOOLBAR -->
 <div class="fab-mobile" id="fabMobile">
-  <!-- ROW 1: COLORS -->
   <div class="fab-row" id="colorsM" style="padding-bottom:6px; border-bottom:1px solid var(--border);"></div>
-  <!-- ROW 2: TOOLS -->
   <div class="fab-row">
     <div id="toolsGridM" style="display:flex;gap:4px"></div>
     <div class="divider"></div>
@@ -520,20 +518,37 @@ async function doAction(id) {
   }
 }
 
+// --- FIXED SUBSCRIBE (So Viewers see it instantly) ---
 function subscribe() {
   const q = query(collection(db, 'rooms', roomId, 'objects'), orderBy('t'));
   onSnapshot(q, (snap) => {
     const ids = new Set();
-    snap.forEach(d => { const data = d.data(); delete data.t; const i = objects.findIndex(o => o.id === d.id); if (i >= 0) objects[i] = data; else objects.push(data); ids.add(d.id); });
+    snap.forEach(d => { 
+      const data = d.data(); 
+      delete data.t; 
+      const i = objects.findIndex(o => o.id === d.id); 
+      if (i >= 0) objects[i] = data; 
+      else objects.push(data); 
+      ids.add(d.id); 
+    });
     objects = objects.filter(o => ids.has(o.id));
     render();
-  });
+  }, (err) => console.error('Sync error:', err));
 
   onSnapshot(doc(db, 'rooms', roomId), (snap) => {
     if (!snap.exists()) return;
     const data = snap.data();
+    
+    // PDF Sync
     if (data.pdfPage && !pdfImages[data.pdfPage] && data.pdfData) {
       const img = new Image(); img.onload = () => { pdfImages[data.pdfPage] = img; render(); }; img.src = data.pdfData;
+    }
+    if (data.pdfPage === null) { pdfImages = {}; render(); }
+    
+    // Viewer UI updates for opacity
+    if (!isHost && data.pdfOpacity !== undefined) {
+      pdfOpacity = data.pdfOpacity;
+      render();
     }
   });
 }
@@ -569,7 +584,7 @@ function buildUI() {
   };
   buildA($('actionsGridD'), false); buildA($('actionsGridM'), true);
 
-  // Colors - perfectly mapped
+  // Colors
   const buildC = (c, m) => {
     c.innerHTML = '';
     COLORS.forEach(col => {
@@ -589,8 +604,19 @@ function buildUI() {
   // Sliders
   $('sizeSlider').oninput = e => { currentSize = e.target.value; $('sizeVal').textContent = currentSize + 'px'; $('sizeSliderM').value = currentSize; $('sizeValM').textContent = currentSize + 'px'; };
   $('sizeSliderM').oninput = e => { currentSize = e.target.value; $('sizeValM').textContent = currentSize + 'px'; $('sizeSlider').value = currentSize; $('sizeVal').textContent = currentSize + 'px'; };
-  $('pdfOpacity').oninput = e => { pdfOpacity = e.target.value / 100; $('pdfOpVal').textContent = e.target.value + '%'; render(); };
-  $('pdfOpacityM').oninput = e => { pdfOpacity = e.target.value / 100; $('pdfOpValM').textContent = e.target.value + '%'; render(); };
+  
+  $('pdfOpacity').oninput = e => { 
+    pdfOpacity = e.target.value / 100; 
+    $('pdfOpVal').textContent = e.target.value + '%'; 
+    if (isHost) setDoc(doc(db, 'rooms', roomId), { pdfOpacity }, { merge: true });
+    render(); 
+  };
+  $('pdfOpacityM').oninput = e => { 
+    pdfOpacity = e.target.value / 100; 
+    $('pdfOpValM').textContent = e.target.value + '%'; 
+    if (isHost) setDoc(doc(db, 'rooms', roomId), { pdfOpacity }, { merge: true });
+    render(); 
+  };
 
   // Toggles
   const bindT = (id, val, cb) => { const el = $(id); if(!el) return; el.classList.toggle('on', val); el.onclick = () => { val = !val; el.classList.toggle('on', val); cb(val); }; };
@@ -660,7 +686,7 @@ async function boot() {
     $('mMenuBtn').onclick = () => { $('drawer').classList.add('open'); $('backdrop').style.display = 'block'; };
     $('backdrop').onclick = () => { $('drawer').classList.remove('open'); $('backdrop').style.display = 'none'; };
     
-    setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp() }, { merge: true });
+    setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp(), pdfOpacity: 1 }, { merge: true });
   }
 
   $('urlText').textContent = location.origin + '/' + roomId; $('roomText').textContent = roomId; $('liveDot').classList.add('on');
