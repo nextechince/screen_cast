@@ -78,8 +78,8 @@
   .tool-btn i{font-size:13px;}
   .tool-btn:hover{background:var(--surface-3);color:var(--text);}
   .tool-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
-  .swatches-row{display:flex;gap:6px;flex-wrap:wrap;}
-  .swatch-lg{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;}
+  .swatches-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .swatch-lg{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;}
   .swatch-lg.active{border-color:#fff;transform:scale(1.1);}
   .swatch-lg.white{border-color:#444;}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--surface-3);border-radius:2px;outline:none;}
@@ -96,12 +96,14 @@
   .fab-mobile{
     display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
     background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border:1px solid var(--border-2);
-    border-radius:16px;padding:6px;z-index:100;max-width:calc(100vw - 20px);overflow-x:auto;gap:4px;
-    align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);
+    border-radius:16px;padding:6px;z-index:100;max-width:calc(100vw - 20px);
+    flex-direction:column;gap:6px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);
   }
+  .fab-row{display:flex;gap:4px;align-items:center;overflow-x:auto;width:100%;scrollbar-width:none;}
+  .fab-row::-webkit-scrollbar{display:none;}
   .fab-mobile .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:.15s;}
   .fab-mobile .tool.active{background:var(--text);color:var(--bg);}
-  .fab-mobile .divider{width:1px;height:20px;background:var(--border-2);margin:0 2px;flex-shrink:0;}
+  .fab-mobile .divider{width:1px;height:20px;background:var(--border-2);margin:0 4px;flex-shrink:0;}
   
   /* MOBILE DRAWER */
   .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;backdrop-filter:blur(2px);}
@@ -148,13 +150,13 @@
   <!-- HOST SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="side-section">
-      <div class="side-label"><i class="fa-solid fa-toolbox"></i> Tools</div>
-      <div class="tools-grid" id="toolsGridD"></div>
+      <div class="side-label"><i class="fa-solid fa-palette"></i> Color</div>
+      <div class="swatches-row" id="colorsD"></div>
     </div>
 
     <div class="side-section">
-      <div class="side-label"><i class="fa-solid fa-palette"></i> Color</div>
-      <div class="swatches-row" id="colorsD"></div>
+      <div class="side-label"><i class="fa-solid fa-toolbox"></i> Tools</div>
+      <div class="tools-grid" id="toolsGridD"></div>
     </div>
 
     <div class="side-section">
@@ -212,11 +214,14 @@
 
 <!-- MOBILE FAB -->
 <div class="fab-mobile" id="fabMobile">
-  <div id="toolsGridM" style="display:flex;gap:4px"></div>
-  <div class="divider"></div>
-  <div id="colorsM" style="display:flex;gap:4px"></div>
-  <div class="divider"></div>
-  <button class="tool" id="mMenuBtn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+  <!-- Row 1: Colors -->
+  <div class="fab-row" id="colorsM" style="justify-content:center; padding-bottom:4px; border-bottom:1px solid var(--border);"></div>
+  <!-- Row 2: Tools -->
+  <div class="fab-row">
+    <div id="toolsGridM" style="display:flex;gap:4px"></div>
+    <div class="divider"></div>
+    <button class="tool" id="mMenuBtn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+  </div>
 </div>
 
 <!-- MOBILE DRAWER -->
@@ -423,7 +428,7 @@ function drawObj(o) {
   ctx.restore();
 }
 
-// ============ NEW HIT-TEST & SELECT LOGIC ============
+// HIT-TEST & SELECT
 function getObjectBounds(o) {
   if (o.type === 'stroke') {
     if (!o.pts || o.pts.length === 0) return null;
@@ -449,7 +454,7 @@ function getObjectBounds(o) {
 function hitTest(o, px, py) {
   const b = getObjectBounds(o);
   if (!b) return false;
-  const pad = 15; // Extra touch area for mobile
+  const pad = 15;
   return px >= b.x - pad && px <= b.x + b.w + pad && py >= b.y - pad && py <= b.y + b.h + pad;
 }
 
@@ -469,7 +474,6 @@ function onDown(e) {
   startPt = p;
 
   if (currentTool === 'select') {
-    // Find topmost object
     for (let i = objects.length - 1; i >= 0; i--) {
       if (hitTest(objects[i], p.x, p.y)) {
         liveObj = JSON.parse(JSON.stringify(objects[i]));
@@ -502,12 +506,9 @@ function onMove(e) {
     liveObj.pts.push(p);
   } else if (currentTool === 'select') {
     const dx = p.x - startPt.x, dy = p.y - startPt.y;
-    if (liveObj.pts) {
-      liveObj.pts = liveObj.pts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
-    } else {
-      liveObj.x1 += dx; liveObj.x2 += dx; liveObj.y1 += dy; liveObj.y2 += dy;
-    }
-    startPt = p; // update start point for smooth delta tracking
+    if (liveObj.pts) liveObj.pts = liveObj.pts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
+    else { liveObj.x1 += dx; liveObj.x2 += dx; liveObj.y1 += dy; liveObj.y2 += dy; }
+    startPt = p; 
   } else {
     liveObj.x2 = p.x; liveObj.y2 = p.y;
   }
@@ -519,13 +520,9 @@ function onUp(e) {
   isDrawing = false;
   if (!liveObj) return;
   
-  if (currentTool === 'select') {
-    saveObj(liveObj, true); // save new coords
-  } else if (liveObj.type === 'stroke' && liveObj.pts.length < 2) {
-    // ignore single dots
-  } else {
-    saveObj(liveObj);
-  }
+  if (currentTool === 'select') saveObj(liveObj, true); 
+  else if (liveObj.type === 'stroke' && liveObj.pts.length < 2) { /* ignore */ }
+  else saveObj(liveObj);
 
   objects.push(liveObj); liveObj = null; render();
 }
@@ -598,7 +595,6 @@ function setTool(id) {
   document.querySelectorAll('.tool-btn, .fab-mobile .tool').forEach(el => el.classList.toggle('active', el.dataset.id === id));
 }
 
-// BUILD UI - Fixed Colors
 function buildUI() {
   // Tools
   const buildT = (c, m) => {
@@ -624,7 +620,7 @@ function buildUI() {
   };
   buildA($('actionsGridD'), false); buildA($('actionsGridM'), true);
 
-  // COLORS - FIXED SO THEY ACTUALLY SELECT
+  // Colors - perfectly mapped
   const buildC = (c, m) => {
     c.innerHTML = '';
     COLORS.forEach(col => {
@@ -633,28 +629,12 @@ function buildUI() {
       b.style.background = col; 
       b.onclick = () => { 
         currentColor = col; 
-        // Re-render both color rows to update the 'active' ring
-        buildColorsOnly();
+        buildC($('colorsD'), false);
+        buildC($('colorsM'), true);
       }; 
       c.appendChild(b);
     });
   };
-  
-  const buildColorsOnly = () => {
-    // Helper to just refresh colors without resetting tool selection
-    [$('colorsD'), $('colorsM')].forEach((c, idx) => {
-      const isMobile = idx === 1;
-      c.innerHTML = '';
-      COLORS.forEach(col => {
-        const b = document.createElement('div'); 
-        b.className = (isMobile ? 'swatch' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
-        b.style.background = col; 
-        b.onclick = () => { currentColor = col; buildColorsOnly(); }; 
-        c.appendChild(b);
-      });
-    });
-  };
-
   buildC($('colorsD'), false); buildC($('colorsM'), true);
 
   // Sliders
@@ -732,10 +712,8 @@ async function boot() {
     isHost = true; roomId = genId(); history.replaceState({}, '', '/' + roomId);
     $('roleTag').textContent = 'Host'; $('roleTag').classList.add('host'); $('sidebarBtn').style.display = 'flex';
     
-    // Fix the top 3-bar menu button
     $('sidebarBtn').onclick = () => $('sidebar').classList.toggle('collapsed');
     
-    // Fix the 3 dots button on mobile
     $('mMenuBtn').onclick = () => { 
       $('drawer').classList.add('open'); 
       $('backdrop').style.display = 'block'; 
