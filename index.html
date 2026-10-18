@@ -598,13 +598,16 @@ function setTool(id) {
   document.querySelectorAll('.tool-btn, .fab-mobile .tool').forEach(el => el.classList.toggle('active', el.dataset.id === id));
 }
 
+// BUILD UI - Fixed Colors
 function buildUI() {
   // Tools
   const buildT = (c, m) => {
     c.innerHTML = '';
     TOOLS.forEach(t => {
       const b = document.createElement('button'); b.className = m ? 'tool' : 'tool-btn'; b.dataset.id = t.id;
-      b.innerHTML = `<i class="fa-solid ${t.icon}"></i>` + (m ? '' : t.label); b.onclick = () => setTool(t.id); c.appendChild(b);
+      b.innerHTML = `<i class="fa-solid ${t.icon}"></i>` + (m ? '' : t.label); 
+      b.onclick = () => setTool(t.id); 
+      c.appendChild(b);
     });
   };
   buildT($('toolsGridD'), false); buildT($('toolsGridM'), true);
@@ -621,14 +624,37 @@ function buildUI() {
   };
   buildA($('actionsGridD'), false); buildA($('actionsGridM'), true);
 
-  // Colors
+  // COLORS - FIXED SO THEY ACTUALLY SELECT
   const buildC = (c, m) => {
     c.innerHTML = '';
     COLORS.forEach(col => {
-      const b = document.createElement('div'); b.className = (m ? 'swatch' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
-      b.style.background = col; b.onclick = () => { currentColor = col; buildUI(); }; c.appendChild(b);
+      const b = document.createElement('div'); 
+      b.className = (m ? 'swatch' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
+      b.style.background = col; 
+      b.onclick = () => { 
+        currentColor = col; 
+        // Re-render both color rows to update the 'active' ring
+        buildColorsOnly();
+      }; 
+      c.appendChild(b);
     });
   };
+  
+  const buildColorsOnly = () => {
+    // Helper to just refresh colors without resetting tool selection
+    [$('colorsD'), $('colorsM')].forEach((c, idx) => {
+      const isMobile = idx === 1;
+      c.innerHTML = '';
+      COLORS.forEach(col => {
+        const b = document.createElement('div'); 
+        b.className = (isMobile ? 'swatch' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
+        b.style.background = col; 
+        b.onclick = () => { currentColor = col; buildColorsOnly(); }; 
+        c.appendChild(b);
+      });
+    });
+  };
+
   buildC($('colorsD'), false); buildC($('colorsM'), true);
 
   // Sliders
