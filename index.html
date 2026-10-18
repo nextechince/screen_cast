@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
-<title>Live Board Pro</title>
+<title>Live Board Ultimate</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -13,17 +13,23 @@
   :root{
     --bg:#000; --surface:#0a0a0a; --surface-2:#121212; --surface-3:#1a1a1a;
     --border:#1f1f1f; --border-2:#2a2a2a; --text:#f5f5f5; --text-dim:#8a8a8a;
-    --text-dimmer:#555; --danger:#e11d48; --success:#22c55e; --accent:#2b6aff;
+    --text-dimmer:#555; --danger:#e11d48; --success:#22c55e;
     --header-h:52px;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden}
-  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:13px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
-  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
-  .mono{font-family:'JetBrains Mono',monospace;}
-
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;font-size:13px;
+    display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  
   /* HEADER */
-  .header{height:var(--header-h);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--surface);border-bottom:1px solid var(--border);z-index:100;}
+  .header{
+    height:var(--header-h);flex-shrink:0;display:flex;align-items:center;gap:10px;
+    padding:0 14px;background:var(--surface);border-bottom:1px solid var(--border);z-index:100;
+  }
   .brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13px;}
   .brand-logo{width:26px;height:26px;border-radius:7px;background:var(--text);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;}
   .live-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dimmer);}
@@ -32,60 +38,80 @@
   .role-tag{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:5px;background:var(--surface-3);color:var(--text-dim);border:1px solid var(--border);}
   .role-tag.host{background:var(--text);color:var(--bg);border-color:var(--text);}
   .header-spacer{flex:1;}
-  .link-bar{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:4px 4px 4px 12px;max-width:320px;}
+  .link-bar{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:4px 4px 4px 12px;max-width:300px;}
   .link-bar .url{font-size:11px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
   .copy-btn{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:var(--surface-3);color:var(--text);font-size:11px;font-weight:500;}
   .copy-btn.ok{background:var(--success);color:#001a09;}
-  .icon-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:13px;transition:.15s;}
+  .icon-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:13px;}
   .icon-btn:hover{background:var(--surface-3);color:var(--text);}
 
   /* MAIN LAYOUT */
-  .layout{flex:1;display:flex;overflow:hidden;position:relative;background:#1a1a1a;}
-  .stage{flex:1;position:relative;overflow:hidden;touch-action:none;display:flex;align-items:center;justify-content:center;background:#000;}
-  #mainCanvas{background:#fff;box-shadow:0 0 20px rgba(0,0,0,0.5);touch-action:none;display:block;}
+  .layout{flex:1;display:flex;overflow:hidden;position:relative;background:#e5e5e5;}
+  .stage{flex:1;position:relative;overflow:hidden;touch-action:none;cursor:crosshair;}
+  #mainCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  
+  /* VIEWER RESYNC BUTTON */
+  .resync-btn{
+    position:absolute;bottom:20px;right:20px;padding:10px 16px;background:#2b6aff;color:#fff;
+    border-radius:30px;font-weight:600;font-size:12px;display:none;align-items:center;gap:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:50;animation:pop .3s ease-out;
+  }
+  .resync-btn.show{display:flex;}
+  @keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
 
-  /* SIDEBAR (HOST) */
-  .sidebar{width:300px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;transition:.2s;z-index:90;}
+  /* RULER OVERLAY */
+  .ruler-container{
+    position:absolute;top:50%;left:50%;width:300px;height:40px;
+    background:rgba(255,255,255,0.85);border:1px solid #999;border-radius:4px;
+    display:none;z-index:40;cursor:move;transform-origin:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.15);backdrop-filter:blur(4px);
+  }
+  .ruler-container.show{display:block;}
+  .ruler-marks{width:100%;height:100%;background-image:repeating-linear-gradient(90deg, transparent, transparent 9px, #666 9px, #666 10px);}
+  .ruler-marks::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:20px;background-image:repeating-linear-gradient(90deg, transparent, transparent 4px, #999 4px, #999 5px);}
+  .ruler-rotate{position:absolute;right:-10px;top:-10px;width:20px;height:20px;background:#2b6aff;border-radius:50%;cursor:crosshair;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:310px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);
+    overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;transition:.2s;z-index:90;
+  }
   .sidebar.collapsed{width:0;padding:0;overflow:hidden;border:none;}
   .side-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dimmer);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-  .tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
-  .tool-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 2px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:9px;font-weight:500;transition:.15s;}
-  .tool-btn i{font-size:14px;}
+  .tools-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;}
+  .tool-btn{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    padding:8px 2px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:6px;color:var(--text-dim);font-size:9px;font-weight:500;
+  }
+  .tool-btn i{font-size:13px;}
   .tool-btn:hover{background:var(--surface-3);color:var(--text);}
   .tool-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
   .swatches-row{display:flex;gap:6px;flex-wrap:wrap;}
-  .swatch-lg{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;}
+  .swatch-lg{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
   .swatch-lg.active{border-color:#fff;transform:scale(1.1);}
   .swatch-lg.white{border-color:#444;}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--surface-3);border-radius:2px;outline:none;}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:var(--text);cursor:pointer;}
-  .row-toggle{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:11px;color:var(--text-dim);}
+  .row-toggle{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px;color:var(--text-dim);}
   .toggle{width:32px;height:18px;background:var(--surface-3);border-radius:10px;position:relative;cursor:pointer;transition:.2s;}
   .toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:.2s;}
-  .toggle.on{background:var(--success);} .toggle.on::after{transform:translateX(14px);}
+  .toggle.on{background:var(--success);}
+  .toggle.on::after{transform:translateX(14px);}
   .status-line{display:flex;align-items:center;gap:8px;padding:8px;background:var(--surface-2);border-radius:6px;font-size:11px;color:var(--text-dim);font-family:monospace;}
+  .status-line i.ok{color:var(--success);} .status-line i.err{color:var(--danger);}
 
-  /* MOBILE TOOLBARS */
-  .fab-mobile{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border:1px solid var(--border-2);border-radius:16px;padding:6px;z-index:100;max-width:calc(100vw - 20px);overflow-x:auto;gap:4px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);}
-  .fab-mobile .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  /* MOBILE TOOLBAR */
+  .fab-mobile{
+    display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border:1px solid var(--border-2);
+    border-radius:16px;padding:6px;z-index:100;max-width:calc(100vw - 20px);overflow-x:auto;gap:4px;
+    align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+  .fab-mobile .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;}
   .fab-mobile .tool.active{background:var(--text);color:var(--bg);}
-  .fab-mobile .divider{width:1px;height:20px;background:var(--border-2);margin:0 2px;flex-shrink:0;}
-  .fab-mobile .swatch{width:22px;height:22px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid transparent;}
-  .fab-mobile .swatch.active{border-color:#fff;transform:scale(1.1);}
-  .fab-mobile .swatch.white{border-color:#444;}
+  .fab-mobile .divider{width:1px;height:20px;background:var(--border-2);margin:0 2px;}
   
-  /* VIEWER CONTROLS */
-  .viewer-controls{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border:1px solid var(--border-2);border-radius:16px;padding:6px;z-index:100;gap:4px;align-items:center;}
-  .viewer-controls.show{display:flex;}
-  .viewer-controls .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;}
-  .viewer-controls .tool.active{background:var(--accent);color:#fff;}
-
-  /* DRAWER */
-  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;backdrop-filter:blur(2px);}
-  .drawer{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;padding:20px;z-index:201;transform:translateY(100%);transition:.2s;max-height:85vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom));}
-  .drawer.open{transform:translateY(0);}
-  .drawer-handle{width:36px;height:4px;background:var(--border-2);border-radius:2px;margin:0 auto 16px;}
-
   @media(max-width:900px){
     .sidebar{display:none;}
     .fab-mobile{display:flex;}
@@ -114,12 +140,21 @@
 <div class="layout">
   <div class="stage" id="stage">
     <canvas id="mainCanvas"></canvas>
+    
+    <!-- Ruler Overlay -->
+    <div class="ruler-container" id="ruler">
+      <div class="ruler-marks"></div>
+      <div class="ruler-rotate" id="rulerRotate"></div>
+    </div>
+
+    <!-- Viewer Re-sync Button -->
+    <button class="resync-btn" id="resyncBtn"><i class="fa-solid fa-sync"></i> Re-sync to Host</button>
   </div>
 
   <!-- HOST SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="side-section">
-      <div class="side-label"><i class="fa-solid fa-toolbox"></i> Draw Tools</div>
+      <div class="side-label"><i class="fa-solid fa-toolbox"></i> Tools</div>
       <div class="tools-grid" id="toolsGridD"></div>
     </div>
 
@@ -134,14 +169,18 @@
         <div class="row-toggle"><span>Stroke size</span><span id="sizeVal">4px</span></div>
         <input type="range" id="sizeSlider" min="1" max="30" value="4">
       </div>
-      <div class="row-toggle"><span>Solid Fill (Shapes)</span><div class="toggle" id="fillToggle"></div></div>
-      <div class="row-toggle"><span>Background Grid</span><div class="toggle" id="gridToggle"></div></div>
-      <div class="row-toggle"><span>Show Ruler Overlay</span><div class="toggle" id="rulerToggle"></div></div>
-    </div>
-
-    <div class="side-section">
-      <div class="side-label"><i class="fa-solid fa-layer-group"></i> Actions</div>
-      <div class="tools-grid" id="actionsGridD"></div>
+      <div class="row-toggle">
+        <span>Solid fill shapes</span>
+        <div class="toggle" id="fillToggle"></div>
+      </div>
+      <div class="row-toggle">
+        <span>Ruler</span>
+        <div class="toggle" id="rulerToggle"></div>
+      </div>
+      <div class="row-toggle">
+        <span>Background Grid</span>
+        <div class="toggle" id="gridToggle"></div>
+      </div>
     </div>
 
     <div class="side-section">
@@ -150,7 +189,9 @@
         <i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF / Image
       </label>
       <input type="file" id="pdfInput" accept="application/pdf,image/*" style="display:none">
-      <div class="row-toggle"><span>PDF Opacity</span><span id="pdfOpVal">100%</span></div>
+      <div class="row-toggle">
+        <span>PDF Opacity</span><span id="pdfOpVal">100%</span>
+      </div>
       <input type="range" id="pdfOpacity" min="10" max="100" value="100">
       <div style="display:flex;gap:6px;margin-top:10px">
         <button class="tool-btn" id="prevPage" style="flex:1;padding:10px"><i class="fa-solid fa-chevron-left"></i></button>
@@ -170,7 +211,7 @@
   </aside>
 </div>
 
-<!-- HOST MOBILE FAB -->
+<!-- MOBILE FAB -->
 <div class="fab-mobile" id="fabMobile">
   <div id="toolsGridM" style="display:flex;gap:4px"></div>
   <div class="divider"></div>
@@ -179,28 +220,19 @@
   <button class="tool" id="mMenuBtn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
 </div>
 
-<!-- VIEWER TOOLBAR -->
-<div class="viewer-controls" id="viewerControls">
-  <button class="tool" id="vPen"><i class="fa-solid fa-pen"></i></button>
-  <button class="tool" id="vHighlighter"><i class="fa-solid fa-highlighter"></i></button>
-  <button class="tool" id="vEraser"><i class="fa-solid fa-eraser"></i></button>
-  <div class="divider"></div>
-  <button class="tool" id="vClear"><i class="fa-solid fa-trash"></i></button>
-</div>
-
-<!-- HOST DRAWER -->
-<div class="drawer-backdrop" id="backdrop"></div>
-<div class="drawer" id="drawer">
-  <div class="drawer-handle"></div>
+<!-- MOBILE DRAWER -->
+<div class="drawer-backdrop" id="backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;"></div>
+<div class="drawer" id="drawer" style="position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;padding:20px;z-index:201;transform:translateY(100%);transition:.2s;max-height:80vh;overflow-y:auto;">
+  <div style="width:40px;height:4px;background:var(--border-2);border-radius:2px;margin:0 auto 20px"></div>
   <div class="side-section">
     <div class="side-label">Properties</div>
     <div style="margin-bottom:10px">
       <div class="row-toggle"><span>Stroke size</span><span id="sizeValM">4px</span></div>
       <input type="range" id="sizeSliderM" min="1" max="30" value="4">
     </div>
-    <div class="row-toggle"><span>Solid Fill (Shapes)</span><div class="toggle" id="fillToggleM"></div></div>
+    <div class="row-toggle"><span>Solid fill shapes</span><div class="toggle" id="fillToggleM"></div></div>
+    <div class="row-toggle"><span>Ruler</span><div class="toggle" id="rulerToggleM"></div></div>
     <div class="row-toggle"><span>Background Grid</span><div class="toggle" id="gridToggleM"></div></div>
-    <div class="row-toggle"><span>Show Ruler Overlay</span><div class="toggle" id="rulerToggleM"></div></div>
   </div>
   <div class="side-section" style="margin-top:20px">
     <div class="side-label">Document</div>
@@ -214,10 +246,6 @@
       <button class="tool-btn" id="nextPageM" style="flex:1;padding:10px"><i class="fa-solid fa-chevron-right"></i></button>
       <button class="tool-btn" id="clearPdfM" style="flex:1;padding:10px"><i class="fa-solid fa-trash"></i></button>
     </div>
-  </div>
-  <div class="side-section" style="margin-top:20px">
-    <div class="side-label">Actions</div>
-    <div class="tools-grid" id="actionsGridM"></div>
   </div>
 </div>
 
@@ -249,28 +277,29 @@ document.head.appendChild(pdfjsScript);
 const $ = id => document.getElementById(id);
 const canvas = $('mainCanvas'), ctx = canvas.getContext('2d');
 const stage = $('stage');
+const rulerEl = $('ruler');
 
 // STATE
 let roomId = null, isHost = false;
-let objects = []; // Host objects (synced)
-let localNotes = []; // Viewer notes (local only)
-
+let objects = [];
 let currentTool = 'pen', currentColor = '#e11d48', currentSize = 4;
 let fillShape = false, showGrid = false, showRuler = false;
 let pdfOpacity = 1.0;
-let rulerAngle = 0, rulerX = 100, rulerY = 100;
 
-// Drawing state
-let isDrawing = false;
-let startPt = null, liveObj = null;
+// CAMERA SYSTEM (Zoom & Pan)
+let cam = { x: 0, y: 0, z: 1 }; // host view
+let viewerCam = { x: 0, y: 0, z: 1 }; // viewer view
+let viewerFollowing = true;
+let isDrawing = false, isPanning = false;
+let startPt = null, lastPt = null, liveObj = null;
 
-// PDF Cache
-let pdfDoc = null, pdfPage = 1, pdfImages = {};
+// PDF
+let pdfDoc = null, pdfPage = 1, pdfRenderCanvas = null;
+let pdfImages = {}; // cache: { pageNum: Image }
 
-// TOOLS (25+ host mapped beautifully)
+// TOOLS
 const TOOLS = [
   { id:'pen', icon:'fa-pen', label:'Pen' },
-  { id:'highlighter', icon:'fa-highlighter', label:'Highlight' },
   { id:'eraser', icon:'fa-eraser', label:'Eraser' },
   { id:'line', icon:'fa-slash', label:'Line' },
   { id:'arrow', icon:'fa-arrow-right', label:'Arrow' },
@@ -279,45 +308,21 @@ const TOOLS = [
   { id:'triangle', icon:'fa-play', label:'Triangle' },
   { id:'diamond', icon:'fa-diamond', label:'Diamond' },
   { id:'star', icon:'fa-star', label:'Star' },
-  { id:'dot', icon:'fa-circle-dot', label:'Dot' },
   { id:'text', icon:'fa-font', label:'Text' },
   { id:'select', icon:'fa-arrow-pointer', label:'Select' }
 ];
-
-const ACTIONS = [
-  { id:'undo', icon:'fa-rotate-left', label:'Undo' },
-  { id:'redo', icon:'fa-rotate-right', label:'Redo' },
-  { id:'clear', icon:'fa-trash', label:'Clear' }
-];
-
 const COLORS = ['#e11d48','#f59e0b','#22c55e','#2b6aff','#8b5cf6','#000000','#ffffff'];
 
-// FIXED BOARD: No pan/zoom, 1:1 ratio via object-fit
+// ============ RENDER ENGINE ============
 function resize() {
   const dpr = window.devicePixelRatio || 1;
-  const r = stage.getBoundingClientRect();
-  
-  // Calculate fixed aspect ratio (16:9)
-  const targetRatio = 16 / 9;
-  let w = r.width;
-  let h = w / targetRatio;
-  
-  if (h > r.height) {
-    h = r.height;
-    w = h * targetRatio;
-  }
-  
-  canvas.style.width = w + 'px';
-  canvas.style.height = h + 'px';
-  canvas.width = w * dpr;
-  canvas.height = h * dpr;
-  
+  canvas.width = stage.clientWidth * dpr;
+  canvas.height = stage.clientHeight * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   render();
 }
 window.addEventListener('resize', resize);
 
-// RENDER ENGINE
 function render() {
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.width / dpr, h = canvas.height / dpr;
@@ -327,50 +332,67 @@ function render() {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
-  // Background Grid
+  // Apply Camera (Viewer or Host)
+  const activeCam = isHost ? cam : viewerCam;
+  ctx.translate(w / 2, h / 2);
+  ctx.scale(activeCam.z, activeCam.z);
+  ctx.translate(-activeCam.x - w / 2, -activeCam.y - h / 2);
+
+  // 1. Draw Grid
   if (showGrid) {
-    ctx.strokeStyle = '#e5e5e5'; ctx.lineWidth = 1;
-    for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
-    for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+    ctx.strokeStyle = '#e5e5e5';
+    ctx.lineWidth = 1 / activeCam.z;
+    const gridSize = 40;
+    const left = activeCam.x - w / 2 / activeCam.z;
+    const top = activeCam.y - h / 2 / activeCam.z;
+    const right = left + w / activeCam.z;
+    const bottom = top + h / activeCam.z;
+    
+    ctx.beginPath();
+    for (let x = Math.floor(left / gridSize) * gridSize; x < right; x += gridSize) {
+      ctx.moveTo(x, top); ctx.lineTo(x, bottom);
+    }
+    for (let y = Math.floor(top / gridSize) * gridSize; y < bottom; y += gridSize) {
+      ctx.moveTo(left, y); ctx.lineTo(right, y);
+    }
+    ctx.stroke();
+    // Axes
+    ctx.strokeStyle = '#d4d4d4'; ctx.lineWidth = 2 / activeCam.z;
+    ctx.beginPath();
+    ctx.moveTo(0, top); ctx.lineTo(0, bottom);
+    ctx.moveTo(left, 0); ctx.lineTo(right, 0);
+    ctx.stroke();
   }
 
-  // PDF
+  // 2. Draw PDF
   if (pdfImages[pdfPage]) {
     ctx.globalAlpha = pdfOpacity;
     const img = pdfImages[pdfPage];
-    const scale = Math.min(w / img.width, h / img.height);
-    const iw = img.width * scale, ih = img.height * scale;
-    ctx.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
+    // Center PDF at origin (0,0)
+    ctx.drawImage(img, -img.width / 2, -img.height / 2);
     ctx.globalAlpha = 1.0;
   }
 
-  // Synced Objects
-  objects.forEach(o => drawObj(o, false));
-  
-  // Local Viewer Notes (only visible to viewer)
-  if (!isHost) localNotes.forEach(o => drawObj(o, true));
-  
-  // Live Drawing
-  if (liveObj) drawObj(liveObj, false);
+  // 3. Draw Objects
+  objects.forEach(o => drawObj(o));
+  if (liveObj) drawObj(liveObj);
 
   ctx.restore();
 }
 
-function drawObj(o, isLocal) {
+function drawObj(o) {
   ctx.save();
   ctx.strokeStyle = o.color;
   ctx.fillStyle = o.color;
   ctx.lineWidth = o.size;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  const fill = o.fill && !['line','stroke','arrow','text','highlighter'].includes(o.type);
+  const fill = o.fill && o.type !== 'line' && o.type !== 'stroke' && o.type !== 'arrow' && o.type !== 'text';
 
-  if (isLocal) ctx.globalAlpha = 0.6; // Viewer notes are slightly transparent
-
-  if (o.type === 'stroke' || o.type === 'highlighter') {
+  if (o.type === 'stroke') {
     if (o.pts.length < 2) return;
-    if (o.type === 'highlighter') ctx.globalAlpha = isLocal ? 0.6 : 0.4;
-    ctx.beginPath(); ctx.moveTo(o.pts[0].x, o.pts[0].y);
+    ctx.beginPath();
+    ctx.moveTo(o.pts[0].x, o.pts[0].y);
     for (let i = 1; i < o.pts.length; i++) ctx.lineTo(o.pts[i].x, o.pts[i].y);
     ctx.stroke();
   } else if (o.type === 'line') {
@@ -411,9 +433,8 @@ function drawObj(o, isLocal) {
       const px = cx + r * Math.cos(a), py = cy + r * Math.sin(a);
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
-    ctx.closePath(); if (fill) ctx.fill(); else ctx.stroke();
-  } else if (o.type === 'dot') {
-    ctx.beginPath(); ctx.arc(o.x1, o.y1, Math.max(o.size, 4), 0, Math.PI * 2); ctx.fill();
+    ctx.closePath();
+    if (fill) ctx.fill(); else ctx.stroke();
   } else if (o.type === 'text') {
     ctx.font = `600 ${o.size * 5}px Inter, sans-serif`;
     ctx.textBaseline = 'top';
@@ -422,48 +443,49 @@ function drawObj(o, isLocal) {
   ctx.restore();
 }
 
-// INTERACTION
+// ============ INTERACTION ============
 function getMousePos(e) {
   const r = canvas.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return { x: clientX - r.left, y: clientY - r.top };
+  
+  // Convert screen to world coordinates based on camera
+  const activeCam = isHost ? cam : viewerCam;
+  const w = r.width, h = r.height;
+  
+  const worldX = (clientX - r.left - w/2) / activeCam.z + activeCam.x + w/2;
+  const worldY = (clientY - r.top - h/2) / activeCam.z + activeCam.y + h/2;
+  return { x: worldX, y: worldY, screenX: clientX, screenY: clientY };
 }
 
 function onDown(e) {
+  if (!isHost) return;
   e.preventDefault();
   const p = getMousePos(e);
-  
-  // Viewer Local Notes
-  if (!isHost) {
-    const vTool = $('vPen').classList.contains('active') ? 'pen' :
-                  $('vHighlighter').classList.contains('active') ? 'highlighter' : 'eraser';
-    isDrawing = true;
-    if (vTool === 'pen' || vTool === 'highlighter') {
-      liveObj = { type: 'stroke', color: vTool === 'pen' ? '#ff0000' : '#ffff00', size: vTool === 'pen' ? 3 : 15, pts: [p], isHigh: vTool === 'highlighter' };
-    } else {
-      // Local eraser removes local notes
-      localNotes = localNotes.filter(o => !o.pts.some(pt => Math.hypot(pt.x - p.x, pt.y - p.y) < 20));
-      render();
-      return;
-    }
+
+  // PAN (Right click or 2-finger touch)
+  if (e.button === 2 || (e.touches && e.touches.length === 2)) {
+    isPanning = true;
+    lastPt = { x: e.touches ? e.touches[0].clientX : e.clientX, y: e.touches ? e.touches[0].clientY : e.clientY };
     return;
   }
 
-  // Host Drawing
   isDrawing = true;
   startPt = p;
 
   if (currentTool === 'select') {
+    // Find top object
     for (let i = objects.length - 1; i >= 0; i--) {
       const o = objects[i];
+      // Simple hit testing (distance from path or bounding box)
       if (o.type === 'stroke' && o.pts.some(pt => Math.hypot(pt.x - p.x, pt.y - p.y) < 15)) {
         liveObj = JSON.parse(JSON.stringify(o)); objects.splice(i, 1); break;
       } else if (o.type === 'text') {
+        // rough box check
         if (Math.abs(p.x - o.x1) < 100 && Math.abs(p.y - o.y1) < 50) {
           liveObj = JSON.parse(JSON.stringify(o)); objects.splice(i, 1); break;
         }
-      } else if (o.x1 !== undefined && o.x2 !== undefined) {
+      } else if (o.x1 && o.x2) { // shapes
         const minX = Math.min(o.x1, o.x2), maxX = Math.max(o.x1, o.x2);
         const minY = Math.min(o.y1, o.y2), maxY = Math.max(o.y1, o.y2);
         if (p.x > minX - 20 && p.x < maxX + 20 && p.y > minY - 20 && p.y < maxY + 20) {
@@ -471,66 +493,112 @@ function onDown(e) {
         }
       }
     }
-    if (liveObj) liveObj._offset = { x: p.x - liveObj.x1, y: p.y - liveObj.y1 };
-    render(); return;
+    if (liveObj) {
+      liveObj._offsetX = p.x - liveObj.x1;
+      liveObj._offsetY = p.y - liveObj.y1;
+      render();
+    }
+    return;
   }
 
   if (currentTool === 'text') {
     const val = prompt('Enter text:');
-    if (val) { const o = { id: genId(), type: 'text', color: currentColor, size: currentSize, x1: p.x, y1: p.y, text: val }; objects.push(o); saveObj(o); render(); }
-    isDrawing = false; return;
+    if (val) {
+      const o = { id: genId(), type: 'text', color: currentColor, size: currentSize, x1: p.x, y1: p.y, text: val };
+      objects.push(o); saveObj(o); render();
+    }
+    isDrawing = false;
+    return;
   }
 
-  if (currentTool === 'pen' || currentTool === 'highlighter' || currentTool === 'eraser') {
-    liveObj = { id: genId(), type: currentTool === 'eraser' ? 'stroke' : currentTool, color: currentTool === 'eraser' ? '#ffffff' : currentColor, size: currentTool === 'eraser' ? currentSize * 4 : currentTool === 'highlighter' ? currentSize * 3 : currentSize, pts: [p] };
-  } else if (currentTool === 'dot') {
-    const o = { id: genId(), type: 'dot', color: currentColor, size: currentSize, x1: p.x, y1: p.y };
-    objects.push(o); saveObj(o); render(); isDrawing = false; return;
+  if (currentTool === 'pen' || currentTool === 'eraser') {
+    liveObj = { id: genId(), type: 'stroke', color: currentTool === 'eraser' ? '#ffffff' : currentColor, size: currentTool === 'eraser' ? currentSize * 4 : currentSize, pts: [p] };
   } else {
     liveObj = { id: genId(), type: currentTool, color: currentColor, size: currentSize, fill: fillShape, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
   }
 }
 
 function onMove(e) {
-  if (!isDrawing || !liveObj) return;
+  if (!isHost) return;
   const p = getMousePos(e);
-  
-  if (!isHost) {
-    if (liveObj.type === 'stroke') liveObj.pts.push(p);
+
+  if (isPanning) {
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    cam.x -= (cx - lastPt.x) / cam.z;
+    cam.y -= (cy - lastPt.y) / cam.z;
+    lastPt = { x: cx, y: cy };
     render(); return;
   }
 
+  if (!isDrawing || !liveObj) return;
+  e.preventDefault();
+
   if (liveObj.type === 'stroke') {
     liveObj.pts.push(p);
+  } else if (liveObj.type === 'text') {
+    // move text
   } else if (currentTool === 'select') {
-    const dx = p.x - startPt.x, dy = p.y - startPt.y;
-    if (liveObj.pts) liveObj.pts = liveObj.pts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
-    else { liveObj.x1 += dx; liveObj.x2 += dx; liveObj.y1 += dy; liveObj.y2 += dy; }
+    const dx = p.x - startPt.x;
+    const dy = p.y - startPt.y;
+    if (liveObj.pts) {
+      liveObj.pts = liveObj.pts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
+    } else {
+      liveObj.x1 += dx; liveObj.x2 += dx; liveObj.y1 += dy; liveObj.y2 += dy;
+    }
     startPt = p;
   } else {
-    liveObj.x2 = p.x; liveObj.y2 = p.y;
+    liveObj.x2 = p.x;
+    liveObj.y2 = p.y;
   }
   render();
 }
 
-function onUp() {
+function onUp(e) {
+  if (!isHost) return;
+  if (isPanning) { isPanning = false; return; }
   if (!isDrawing) return;
   isDrawing = false;
-  if (!liveObj) return;
   
-  if (!isHost) {
-    localNotes.push(liveObj); liveObj = null; render(); return;
+  if (liveObj) {
+    if (currentTool === 'select') {
+      // Just update position
+      saveObj(liveObj, true);
+    } else if (liveObj.type === 'stroke' && liveObj.pts.length < 2) {
+      // ignore dot
+    } else {
+      saveObj(liveObj);
+    }
+    objects.push(liveObj);
+    liveObj = null;
+    render();
   }
-
-  if (currentTool === 'select') {
-    saveObj(liveObj, true);
-  } else if (liveObj.type === 'stroke' && liveObj.pts.length < 2) {
-    // ignore
-  } else {
-    saveObj(liveObj);
-  }
-  objects.push(liveObj); liveObj = null; render();
 }
+
+// Wheel zoom (Desktop)
+canvas.addEventListener('wheel', (e) => {
+  if (!isHost) return;
+  e.preventDefault();
+  const zoom = e.deltaY > 0 ? 0.9 : 1.1;
+  cam.z = Math.max(0.2, Math.min(5, cam.z * zoom));
+  render();
+}, { passive: false });
+
+// Pinch zoom (Mobile)
+let lastPinchDist = 0;
+canvas.addEventListener('touchmove', (e) => {
+  if (!isHost) return;
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    if (lastPinchDist) {
+      cam.z = Math.max(0.2, Math.min(5, cam.z * (dist / lastPinchDist)));
+      render();
+    }
+    lastPinchDist = dist;
+  }
+}, { passive: false });
+canvas.addEventListener('touchend', () => { lastPinchDist = 0; });
 
 canvas.addEventListener('mousedown', onDown);
 canvas.addEventListener('mousemove', onMove);
@@ -539,41 +607,74 @@ canvas.addEventListener('mouseleave', onUp);
 canvas.addEventListener('touchstart', onDown, { passive: false });
 canvas.addEventListener('touchmove', onMove, { passive: false });
 canvas.addEventListener('touchend', onUp);
+canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-// FIREBASE SYNC
+// ============ FIREBASE & SYNC ============
 function genId(){ const a=new Uint8Array(4); crypto.getRandomValues(a); return Array.from(a,n=>n.toString(16)).join(''); }
 
 async function saveObj(o, isUpdate) {
+  if (!isHost) return;
   try {
     const data = JSON.parse(JSON.stringify(o));
-    delete data._offset;
+    delete data._offsetX; delete data._offsetY;
     if (!isUpdate) data.t = serverTimestamp();
     await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data, { merge: true });
-    setStatus('ok', 'Synced');
+    if (isHost) { broadcastCam(); setStatus('ok', 'Synced'); }
   } catch (e) { setStatus('err', 'Save failed'); }
 }
 
+async function deleteObj(id) {
+  try { await deleteDoc(doc(db, 'rooms', roomId, 'objects', id)); } catch(e){}
+}
+
+// Sync Camera to Viewers
+function broadcastCam() {
+  if (!isHost) return;
+  setDoc(doc(db, 'rooms', roomId), { cam: { x: cam.x, y: cam.y, z: cam.z } }, { merge: true });
+}
+
 function subscribe() {
+  // Objects
   const q = query(collection(db, 'rooms', roomId, 'objects'), orderBy('t'));
   onSnapshot(q, (snap) => {
     const ids = new Set();
-    snap.forEach(d => { const data = d.data(); delete data.t; const i = objects.findIndex(o => o.id === d.id); if (i >= 0) objects[i] = data; else objects.push(data); ids.add(d.id); });
+    snap.forEach(d => {
+      const data = d.data(); delete data.t;
+      const i = objects.findIndex(o => o.id === d.id);
+      if (i >= 0) objects[i] = data; else objects.push(data);
+      ids.add(d.id);
+    });
     objects = objects.filter(o => ids.has(o.id));
-    render();
+    if (!isHost) render();
   });
 
+  // Room Meta (Camera, PDF)
   onSnapshot(doc(db, 'rooms', roomId), (snap) => {
     if (!snap.exists()) return;
     const data = snap.data();
-    if (data.pdfPage && !pdfImages[data.pdfPage] && data.pdfData) {
-      const img = new Image(); img.onload = () => { pdfImages[data.pdfPage] = img; render(); }; img.src = data.pdfData;
+    
+    // Host Camera Update (Viewers only)
+    if (!isHost && data.cam && viewerFollowing) {
+      viewerCam = { ...data.cam };
+      render();
+    }
+
+    // PDF Update
+    if (data.pdfPage && !pdfImages[data.pdfPage]) {
+      // Load from cache if possible, else download
+      if (data.pdfData) {
+        const img = new Image();
+        img.onload = () => { pdfImages[data.pdfPage] = img; render(); };
+        img.src = data.pdfData;
+      }
     }
   });
 }
 
-// UI SETUP
+// ============ UI SETUP ============
 function setStatus(type, text) {
-  const el = $('statusLine'); const i = el.querySelector('i');
+  const el = $('statusLine');
+  const i = el.querySelector('i');
   el.className = 'status-line';
   i.className = 'fa-solid ' + (type === 'ok' ? 'fa-circle-check ok' : type === 'err' ? 'fa-circle-exclamation err' : 'fa-circle-notch');
   $('netText').textContent = text ? '· ' + text : '';
@@ -581,88 +682,123 @@ function setStatus(type, text) {
 
 function setTool(id) {
   currentTool = id;
-  document.querySelectorAll('.tool-btn, .fab-mobile .tool').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+  document.querySelectorAll('.tool-btn, .tool').forEach(el => el.classList.toggle('active', el.dataset.id === id));
 }
 
 function buildUI() {
+  // Tools
   const buildT = (c, m) => {
     c.innerHTML = '';
     TOOLS.forEach(t => {
-      const b = document.createElement('button'); b.className = m ? 'tool' : 'tool-btn'; b.dataset.id = t.id;
-      b.innerHTML = `<i class="fa-solid ${t.icon}"></i>` + (m ? '' : t.label); b.onclick = () => setTool(t.id); c.appendChild(b);
-    });
-  };
-  buildT($('toolsGridD'), false); buildT($('toolsGridM'), true);
-
-  const buildA = (c, m) => {
-    c.innerHTML = '';
-    ACTIONS.forEach(a => {
-      const b = document.createElement('button'); b.className = m ? 'tool' : 'tool-btn';
-      b.innerHTML = `<i class="fa-solid ${a.icon}"></i>` + (m ? '' : a.label);
-      b.onclick = () => { if(a.id==='clear'){ objects=[]; render(); getDocs(collection(db,'rooms',roomId,'objects')).then(s=>s.docs.forEach(d=>deleteDoc(d.ref))); } };
+      const b = document.createElement('button');
+      b.className = m ? 'tool' : 'tool-btn';
+      b.dataset.id = t.id;
+      b.innerHTML = `<i class="fa-solid ${t.icon}"></i>` + (m ? '' : t.label);
+      b.onclick = () => setTool(t.id);
       c.appendChild(b);
     });
   };
-  buildA($('actionsGridD'), false); buildA($('actionsGridM'), true);
+  buildT($('toolsGridD'), false);
+  buildT($('toolsGridM'), true);
 
+  // Colors
   const buildC = (c, m) => {
     c.innerHTML = '';
     COLORS.forEach(col => {
-      const b = document.createElement('div'); b.className = (m ? 'swatch' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
-      b.style.background = col; b.onclick = () => { currentColor = col; buildUI(); }; c.appendChild(b);
+      const b = document.createElement('div');
+      b.className = (m ? 'swatch-lg' : 'swatch-lg') + (col === currentColor ? ' active' : '') + (col === '#ffffff' ? ' white' : '');
+      b.style.background = col;
+      b.onclick = () => { currentColor = col; buildUI(); };
+      c.appendChild(b);
     });
   };
-  buildC($('colorsD'), false); buildC($('colorsM'), true);
-
+  buildC($('colorsD'), false);
+  buildC($('colorsM'), true);
+  
+  // Sliders
   $('sizeSlider').oninput = e => { currentSize = e.target.value; $('sizeVal').textContent = currentSize + 'px'; $('sizeSliderM').value = currentSize; $('sizeValM').textContent = currentSize + 'px'; };
   $('sizeSliderM').oninput = e => { currentSize = e.target.value; $('sizeValM').textContent = currentSize + 'px'; $('sizeSlider').value = currentSize; $('sizeVal').textContent = currentSize + 'px'; };
-
-  const bindT = (id, val, cb) => { const el = $(id); el.classList.toggle('on', val); el.onclick = () => { val = !val; el.classList.toggle('on', val); cb(val); }; };
-  bindT('fillToggle', fillShape, v => { fillShape = v; $('fillToggleM').classList.toggle('on', v); });
-  bindT('fillToggleM', fillShape, v => { fillShape = v; $('fillToggle').classList.toggle('on', v); });
-  bindT('gridToggle', showGrid, v => { showGrid = v; $('gridToggleM').classList.toggle('on', v); render(); });
-  bindT('gridToggleM', showGrid, v => { showGrid = v; $('gridToggle').classList.toggle('on', v); render(); });
   
+  // Toggles
+  const bindToggle = (id, val, cb) => {
+    const el = $(id);
+    el.classList.toggle('on', val);
+    el.onclick = () => { val = !val; el.classList.toggle('on', val); cb(val); };
+  };
+  bindToggle('fillToggle', fillShape, v => { fillShape = v; $('fillToggleM').classList.toggle('on', v); });
+  bindToggle('fillToggleM', fillShape, v => { fillShape = v; $('fillToggle').classList.toggle('on', v); });
+  bindToggle('gridToggle', showGrid, v => { showGrid = v; $('gridToggleM').classList.toggle('on', v); render(); });
+  bindToggle('gridToggleM', showGrid, v => { showGrid = v; $('gridToggle').classList.toggle('on', v); render(); });
+  bindToggle('rulerToggle', showRuler, v => { showRuler = v; rulerEl.classList.toggle('show', v); $('rulerToggleM').classList.toggle('on', v); });
+  bindToggle('rulerToggleM', showRuler, v => { showRuler = v; rulerEl.classList.toggle('show', v); $('rulerToggle').classList.toggle('on', v); });
+  
+  // PDF Opacity
   $('pdfOpacity').oninput = e => { pdfOpacity = e.target.value / 100; $('pdfOpVal').textContent = e.target.value + '%'; render(); };
   $('pdfOpacityM').oninput = e => { pdfOpacity = e.target.value / 100; $('pdfOpValM').textContent = e.target.value + '%'; render(); };
-
-  // Viewer Tools
-  const vTools = ['vPen', 'vHighlighter', 'vEraser'];
-  vTools.forEach(id => {
-    $(id).onclick = () => {
-      vTools.forEach(v => $(v).classList.remove('active'));
-      $(id).classList.add('active');
-    };
-  });
-  $('vPen').classList.add('active');
-  $('vClear').onclick = () => { localNotes = []; render(); };
 
   setTool('pen');
 }
 
-// PDF LOGIC
+// Ruler Drag
+let rulerDrag = false, rulerOffset = {x:0,y:0}, rulerRotate = false, rulerAngle = 0;
+rulerEl.addEventListener('mousedown', e => {
+  if (e.target.id === 'rulerRotate') { rulerRotate = true; }
+  else { rulerDrag = true; rulerOffset = { x: e.clientX - rulerEl.offsetLeft, y: e.clientY - rulerEl.offsetTop }; }
+});
+window.addEventListener('mousemove', e => {
+  if (rulerDrag) { rulerEl.style.left = (e.clientX - rulerOffset.x) + 'px'; rulerEl.style.top = (e.clientY - rulerOffset.y) + 'px'; rulerEl.style.transform = 'none'; }
+  if (rulerRotate) { rulerAngle = Math.atan2(e.clientY - (rulerEl.offsetTop + 20), e.clientX - (rulerEl.offsetLeft + 150)) * 180 / Math.PI; rulerEl.style.transform = `rotate(${rulerAngle}deg)`; }
+});
+window.addEventListener('mouseup', () => { rulerDrag = false; rulerRotate = false; });
+
+// ============ PDF LOGIC ============
 $('pdfInput').onchange = async (e) => {
-  const file = e.target.files[0]; if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
+
   if (file.type.startsWith('image/')) {
-    const img = new Image(); img.onload = () => { pdfImages[1] = img; pdfPage = 1; pushPdf(1, img); render(); }; img.src = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      pdfImages[1] = img;
+      pdfPage = 1;
+      if (isHost) pushPdfToDb(1, img);
+      render();
+    };
+    img.src = URL.createObjectURL(file);
   } else if (file.type === 'application/pdf') {
-    const buf = await file.arrayBuffer(); pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise; pdfPage = 1; await renderPdfPage(1);
+    const buf = await file.arrayBuffer();
+    pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+    pdfPage = 1;
+    await renderPdfPage(1);
   }
 };
 
 async function renderPdfPage(num) {
   if (!pdfDoc) return;
-  const page = await pdfDoc.getPage(num); const viewport = page.getViewport({ scale: 1.5 });
-  const c = document.createElement('canvas'); c.width = viewport.width; c.height = viewport.height;
+  const page = await pdfDoc.getPage(num);
+  const viewport = page.getViewport({ scale: 1.5 });
+  const c = document.createElement('canvas');
+  c.width = viewport.width; c.height = viewport.height;
   await page.render({ canvasContext: c.getContext('2d'), viewport }).promise;
-  const img = new Image(); img.onload = () => { pdfImages[num] = img; pushPdf(num, img); render(); }; img.src = c.toDataURL('image/jpeg', 0.7);
+  
+  const img = new Image();
+  img.onload = () => {
+    pdfImages[num] = img;
+    if (isHost) pushPdfToDb(num, img);
+    render();
+  };
+  img.src = c.toDataURL('image/jpeg', 0.7);
 }
 
-async function pushPdf(num, img) {
+async function pushPdfToDb(num, img) {
   if (!isHost) return;
-  const c = document.createElement('canvas'); c.width = 800; c.height = 800 * (img.height / img.width);
+  // Compress for Firestore 1MB limit
+  const c = document.createElement('canvas');
+  c.width = 800; c.height = 800 * (img.height / img.width);
   c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-  await setDoc(doc(db, 'rooms', roomId), { pdfPage: num, pdfData: c.toDataURL('image/jpeg', 0.6) }, { merge: true });
+  const dataUrl = c.toDataURL('image/jpeg', 0.6);
+  
+  await setDoc(doc(db, 'rooms', roomId), { pdfPage: num, pdfData: dataUrl }, { merge: true });
   setStatus('ok', 'PDF Synced');
 }
 
@@ -670,7 +806,7 @@ $('prevPage').onclick = $('prevPageM').onclick = () => { if (pdfDoc && pdfPage >
 $('nextPage').onclick = $('nextPageM').onclick = () => { if (pdfDoc && pdfPage < pdfDoc.numPages) { pdfPage++; renderPdfPage(pdfPage); } };
 $('clearPdf').onclick = $('clearPdfM').onclick = () => { pdfImages = {}; pdfDoc = null; render(); if (isHost) setDoc(doc(db, 'rooms', roomId), { pdfPage: null, pdfData: null }, { merge: true }); };
 
-// BOOT
+// ============ BOOT ============
 async function boot() {
   buildUI();
   resize();
@@ -679,24 +815,63 @@ async function boot() {
   const existing = /^[a-zA-Z0-9_-]{4,32}$/.test(path) ? path : null;
 
   if (existing) {
-    isHost = false; roomId = existing;
-    $('roleTag').textContent = 'Viewer'; $('sidebar').style.display = 'none'; $('fabMobile').style.display = 'none'; $('sidebarBtn').style.display = 'none';
-    $('viewerControls').classList.add('show');
+    isHost = false;
+    roomId = existing;
+    $('roleTag').textContent = 'Viewer';
+    $('sidebar').style.display = 'none';
+    $('fabMobile').style.display = 'none';
+    $('sidebarBtn').style.display = 'none';
+    $('resyncBtn').style.display = 'flex';
+    canvas.style.cursor = 'default';
+    
+    // Viewer Zoom/Pan
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      viewerFollowing = false;
+      $('resyncBtn').classList.add('show');
+      const zoom = e.deltaY > 0 ? 0.9 : 1.1;
+      viewerCam.z = Math.max(0.2, Math.min(5, viewerCam.z * zoom));
+      render();
+    }, { passive: false });
+
+    $('resyncBtn').onclick = () => {
+      viewerFollowing = true;
+      $('resyncBtn').classList.remove('show');
+      // Next room update will snap camera
+    };
   } else {
-    isHost = true; roomId = genId(); history.replaceState({}, '', '/' + roomId);
-    $('roleTag').textContent = 'Host'; $('roleTag').classList.add('host'); $('sidebarBtn').style.display = 'flex';
-    $('viewerControls').style.display = 'none';
+    isHost = true;
+    roomId = genId();
+    history.replaceState({}, '', '/' + roomId);
+    $('roleTag').textContent = 'Host';
+    $('roleTag').classList.add('host');
+    $('sidebarBtn').style.display = 'flex';
+    $('resyncBtn').style.display = 'none';
     
+    // Sidebar Toggle
     $('sidebarBtn').onclick = () => $('sidebar').classList.toggle('collapsed');
-    $('mMenuBtn').onclick = () => { $('drawer').classList.add('open'); $('backdrop').style.display = 'block'; };
-    $('backdrop').onclick = () => { $('drawer').classList.remove('open'); $('backdrop').style.display = 'none'; };
     
-    setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp() }, { merge: true });
+    // Mobile Drawer
+    $('mMenuBtn').onclick = () => {
+      $('drawer').style.transform = 'translateY(0)';
+      $('backdrop').style.display = 'block';
+    };
+    $('backdrop').onclick = () => {
+      $('drawer').style.transform = 'translateY(100%)';
+      $('backdrop').style.display = 'none';
+    };
+
+    setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp(), cam: {x:0,y:0,z:1} }, { merge: true });
   }
 
-  $('urlText').textContent = location.origin + '/' + roomId; $('roomText').textContent = roomId; $('liveDot').classList.add('on');
+  $('urlText').textContent = location.origin + '/' + roomId;
+  $('roomText').textContent = roomId;
+  $('liveDot').classList.add('on');
+
   subscribe();
 }
+
+window.addEventListener('beforeunload', () => {});
 </script>
 </body>
 </html>
