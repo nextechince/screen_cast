@@ -94,15 +94,18 @@
 
   /* MOBILE TOOLBAR */
   .fab-mobile{
-    display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    display:none;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);
     background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border:1px solid var(--border-2);
-    border-radius:16px;padding:6px;z-index:100;max-width:calc(100vw - 20px);
-    flex-direction:column;gap:6px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);
+    border-radius:16px;padding:8px;z-index:100;width:calc(100vw - 20px);max-width:500px;
+    flex-direction:column;gap:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);
   }
-  .fab-row{display:flex;gap:4px;align-items:center;overflow-x:auto;width:100%;scrollbar-width:none;}
+  .fab-row{display:flex;gap:6px;align-items:center;justify-content:center;width:100%;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
   .fab-row::-webkit-scrollbar{display:none;}
-  .fab-mobile .tool{width:36px;height:36px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:.15s;}
+  .fab-mobile .tool{width:34px;height:34px;border-radius:8px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:.15s;}
   .fab-mobile .tool.active{background:var(--text);color:var(--bg);}
+  .fab-mobile .swatch{width:24px;height:24px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid transparent;transition:.15s;}
+  .fab-mobile .swatch.active{border-color:#fff;transform:scale(1.15);}
+  .fab-mobile .swatch.white{border-color:#444;}
   .fab-mobile .divider{width:1px;height:20px;background:var(--border-2);margin:0 4px;flex-shrink:0;}
   
   /* MOBILE DRAWER */
@@ -215,7 +218,7 @@
 <!-- MOBILE FAB -->
 <div class="fab-mobile" id="fabMobile">
   <!-- Row 1: Colors -->
-  <div class="fab-row" id="colorsM" style="justify-content:center; padding-bottom:4px; border-bottom:1px solid var(--border);"></div>
+  <div class="fab-row" id="colorsM" style="border-bottom:1px solid var(--border); padding-bottom:8px;"></div>
   <!-- Row 2: Tools -->
   <div class="fab-row">
     <div id="toolsGridM" style="display:flex;gap:4px"></div>
