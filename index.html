@@ -77,8 +77,6 @@
   .toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:.2s;}
   .toggle.on{background:var(--success);}
   .toggle.on::after{transform:translateX(14px);}
-  .status-line{display:flex;align-items:center;gap:8px;padding:8px;background:var(--surface-2);border-radius:6px;font-size:11px;color:var(--text-dim);font-family:monospace;}
-  .status-line i.ok{color:var(--success);} .status-line i.err{color:var(--danger);}
 
   /* MOBILE TOOLBAR */
   .fab-mobile{
@@ -132,7 +130,6 @@
     <canvas id="mainCanvas"></canvas>
   </div>
 
-  <!-- HOST SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="side-section">
       <div class="side-label"><i class="fa-solid fa-palette"></i> Color</div>
@@ -180,7 +177,6 @@
   </aside>
 </div>
 
-<!-- MOBILE TOOLBAR -->
 <div class="fab-mobile" id="fabMobile">
   <div class="fab-row" id="colorsM" style="padding-bottom:6px; border-bottom:1px solid var(--border);"></div>
   <div class="fab-row">
@@ -190,7 +186,6 @@
   </div>
 </div>
 
-<!-- MOBILE DRAWER -->
 <div class="drawer-backdrop" id="backdrop"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-handle"></div>
@@ -518,8 +513,8 @@ async function doAction(id) {
   }
 }
 
-// --- FIXED SUBSCRIBE (So Viewers see it instantly) ---
 function subscribe() {
+  // 1. Listen to all objects (strokes, shapes, text)
   const q = query(collection(db, 'rooms', roomId, 'objects'), orderBy('t'));
   onSnapshot(q, (snap) => {
     const ids = new Set();
@@ -535,6 +530,7 @@ function subscribe() {
     render();
   }, (err) => console.error('Sync error:', err));
 
+  // 2. Listen to room settings (PDF pages, opacity)
   onSnapshot(doc(db, 'rooms', roomId), (snap) => {
     if (!snap.exists()) return;
     const data = snap.data();
