@@ -4,915 +4,322 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <title>Live Board Pro · Nex Tech Dashboard</title>
-  <!-- Fonts & Icons -->
+  <title>Live Board Pro · Nex Tech</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    /* ----- GLOBAL RESET & THEME (Nex Tech Black/White) ----- */
-    :root {
-      --bg: #000;
-      --surface: #0a0a0a;
-      --surface-2: #121212;
-      --surface-3: #1a1a1a;
-      --border: #1f1f1f;
-      --border-2: #2a2a2a;
-      --text: #f5f5f5;
-      --text-dim: #8a8a8a;
-      --text-dimmer: #555;
-      --danger: #e11d48;
-      --success: #22c55e;
-      --accent: #2b6aff;
-      --header-h: 52px;
-      --mono: 'JetBrains Mono', monospace;
+    :root{
+      --bg:#000; --surface:#0a0a0a; --surface-2:#121212; --surface-3:#1a1a1a;
+      --border:#1f1f1f; --border-2:#2a2a2a; --text:#f5f5f5; --text-dim:#8a8a8a;
+      --text-dimmer:#555; --danger:#e11d48; --success:#22c55e; --accent:#2b6aff;
+      --header-h:52px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;overflow:hidden}
+    body{
+      background:var(--bg);color:var(--text);
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      font-size:13px;line-height:1.4;
+      display:flex;flex-direction:column;
+      -webkit-font-smoothing:antialiased;overscroll-behavior:none;
+    }
+    button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+    .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+
+    .header{
+      height:var(--header-h);flex-shrink:0;
+      display:flex;align-items:center;gap:10px;padding:0 14px;
+      background:var(--surface);border-bottom:1px solid var(--border);
+      position:relative;z-index:100;
+    }
+    .brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13px;flex-shrink:0}
+    .brand-logo{
+      width:26px;height:26px;border-radius:7px;background:var(--text);color:var(--bg);
+      display:flex;align-items:center;justify-content:center;font-size:12px;
+    }
+    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dimmer);flex-shrink:0;transition:background .3s}
+    .live-dot.on{background:var(--success);box-shadow:0 0 0 3px rgba(34,197,94,.15);animation:pulse 2s infinite}
+    .live-dot.err{background:var(--danger);animation:none}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+    .role-tag{
+      font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+      padding:3px 8px;border-radius:5px;background:var(--surface-3);color:var(--text-dim);border:1px solid var(--border);
+    }
+    .role-tag.host{background:var(--text);color:var(--bg);border-color:var(--text)}
+    .header-spacer{flex:1}
+    .link-bar{
+      display:flex;align-items:center;gap:6px;background:var(--surface-2);
+      border:1px solid var(--border);border-radius:8px;padding:4px 4px 4px 12px;
+      max-width:320px;min-width:0;
+    }
+    .link-bar .url{font-size:11px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+    .copy-btn{
+      display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;
+      background:var(--surface-3);color:var(--text);font-size:11px;font-weight:500;flex-shrink:0;
+    }
+    .copy-btn.ok{background:var(--success);color:#001a09}
+    .copy-btn i{font-size:10px}
+    .icon-btn{
+      width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+      background:transparent;color:var(--text-dim);flex-shrink:0;font-size:13px;
+    }
+    .icon-btn:hover{background:var(--surface-3);color:var(--text)}
+
+    .layout{flex:1;display:flex;overflow:hidden;position:relative;background:#fff}
+    .stage{flex:1;position:relative;background:#fff;overflow:hidden;touch-action:none}
+    #canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+
+    .zoom-ctrl{
+      position:absolute;right:12px;top:12px;z-index:40;
+      display:flex;flex-direction:column;gap:4px;
+      background:rgba(10,10,10,.85);backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      border:1px solid var(--border-2);border-radius:10px;padding:4px;
+      box-shadow:0 8px 24px -4px rgba(0,0,0,.6);
+    }
+    .zoom-ctrl button{
+      width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+      border-radius:6px;color:var(--text-dim);font-size:12px;
+    }
+    .zoom-ctrl button:hover{background:var(--surface-3);color:var(--text)}
+    .zoom-ctrl .zoom-label{
+      font-size:9px;text-align:center;color:var(--text-dimmer);
+      padding:2px 0;font-family:'JetBrains Mono',monospace;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    .text-input{
+      position:absolute;z-index:60;display:none;
+      background:#fff;border:2px solid var(--accent);border-radius:4px;
+      padding:2px 6px;outline:none;
+      min-width:80px;color:#000;font-family:inherit;
+      transform-origin:top left;
     }
+    .text-input.show{display:block}
 
-    html, body {
-      height: 100%;
-      overflow: hidden;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      font-size: 13px;
-      line-height: 1.4;
+    .fab{
+      position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+      display:flex;align-items:center;gap:4px;padding:6px;
+      background:rgba(10,10,10,.94);backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border:1px solid var(--border-2);border-radius:16px;
+      box-shadow:0 20px 40px -8px rgba(0,0,0,.9);
+      z-index:50;max-width:calc(100vw - 24px);overflow-x:auto;scrollbar-width:none;
+      padding-bottom:calc(6px + env(safe-area-inset-bottom));
     }
-
-    body {
-      display: flex;
-      flex-direction: column;
-      -webkit-font-smoothing: antialiased;
-      overscroll-behavior: none;
+    .fab::-webkit-scrollbar{display:none}
+    .fab.hidden{display:none}
+    .fab .tool{
+      width:36px;height:36px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      border-radius:9px;color:var(--text-dim);font-size:13px;
     }
-
-    button {
-      font-family: inherit;
-      cursor: pointer;
-      border: none;
-      background: none;
-      color: inherit;
+    .fab .tool:hover{background:var(--surface-3);color:var(--text)}
+    .fab .tool.active{background:var(--text);color:var(--bg)}
+    .fab .tool.danger:hover{background:var(--danger);color:#fff}
+    .fab .divider{width:1px;height:22px;background:var(--border-2);margin:0 3px;flex-shrink:0}
+    .fab .swatch{
+      width:20px;height:20px;border-radius:50%;flex-shrink:0;
+      cursor:pointer;border:2px solid transparent;
     }
+    .fab .swatch.active{border-color:#fff;transform:scale(1.1)}
+    .fab .swatch.white{border-color:#444}
+    .fab .swatch.white.active{border-color:#fff}
 
-    .mono { font-family: var(--mono); }
-
-    /* ----- HEADER ----- */
-    .header {
-      height: var(--header-h);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 14px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      position: relative;
-      z-index: 100;
+    .sidebar{
+      display:none;width:300px;flex-shrink:0;
+      background:var(--surface);border-left:1px solid var(--border);
+      overflow-y:auto;padding:16px;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      font-weight: 600;
-      font-size: 13px;
-      flex-shrink: 0;
-      letter-spacing: -0.01em;
-    }
-
-    .brand-logo {
-      width: 26px;
-      height: 26px;
-      border-radius: 7px;
-      background: var(--text);
-      color: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-
-    .live-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--text-dimmer);
-      flex-shrink: 0;
-      transition: background .3s;
-    }
-
-    .live-dot.on {
-      background: var(--success);
-      box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
-      animation: pulse 2s infinite;
-    }
-
-    .live-dot.err {
-      background: var(--danger);
-      animation: none;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, .4); }
-      50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
-    }
-
-    .role-tag {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 5px;
-      background: var(--surface-3);
-      color: var(--text-dim);
-      border: 1px solid var(--border);
-    }
-
-    .role-tag.host {
-      background: var(--text);
-      color: var(--bg);
-      border-color: var(--text);
-    }
-
-    .header-spacer { flex: 1; }
-
-    .link-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 4px 4px 4px 12px;
-      max-width: 320px;
-      min-width: 0;
-    }
-
-    .link-bar .url {
-      font-size: 11px;
-      color: var(--text-dim);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .copy-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 10px;
-      border-radius: 6px;
-      background: var(--surface-3);
-      color: var(--text);
-      font-size: 11px;
-      font-weight: 500;
-      flex-shrink: 0;
-    }
-
-    .copy-btn.ok {
-      background: var(--success);
-      color: #001a09;
-    }
-
-    .copy-btn i { font-size: 10px; }
-
-    .icon-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      color: var(--text-dim);
-      flex-shrink: 0;
-      font-size: 13px;
-    }
-
-    .icon-btn:hover {
-      background: var(--surface-3);
-      color: var(--text);
-    }
-
-    /* ----- LAYOUT ----- */
-    .layout {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-      position: relative;
-      background: #fff;
-    }
-
-    .stage {
-      flex: 1;
-      position: relative;
-      background: #fff;
-      overflow: hidden;
-      touch-action: none;
-    }
-
-    #canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-      display: block;
-    }
-
-    /* ----- ZOOM CONTROLS ----- */
-    .zoom-ctrl {
-      position: absolute;
-      right: 12px;
-      top: 12px;
-      z-index: 40;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      background: rgba(10, 10, 10, .85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-2);
-      border-radius: 10px;
-      padding: 4px;
-      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, .6);
-    }
-
-    .zoom-ctrl button {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 6px;
-      color: var(--text-dim);
-      font-size: 12px;
-    }
-
-    .zoom-ctrl button:hover {
-      background: var(--surface-3);
-      color: var(--text);
-    }
-
-    .zoom-ctrl .zoom-label {
-      font-size: 9px;
-      text-align: center;
-      color: var(--text-dimmer);
-      padding: 2px 0;
-      font-family: var(--mono);
-    }
-
-    /* ----- TEXT INPUT OVERLAY ----- */
-    .text-input {
-      position: absolute;
-      z-index: 60;
-      display: none;
-      background: #fff;
-      border: 2px solid var(--accent);
-      border-radius: 4px;
-      padding: 2px 6px;
-      outline: none;
-      min-width: 80px;
-      color: #000;
-      font-family: inherit;
-      transform-origin: top left;
-    }
-
-    .text-input.show { display: block; }
-
-    /* ----- FLOATING TOOLBAR (mobile) ----- */
-    .fab {
-      position: fixed;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 6px;
-      background: rgba(10, 10, 10, .94);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-2);
-      border-radius: 16px;
-      box-shadow: 0 20px 40px -8px rgba(0, 0, 0, .9);
-      z-index: 50;
-      max-width: calc(100vw - 24px);
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: calc(6px + env(safe-area-inset-bottom));
-    }
-
-    .fab::-webkit-scrollbar { display: none; }
-    .fab.hidden { display: none; }
-
-    .fab .tool {
-      width: 36px;
-      height: 36px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 9px;
-      color: var(--text-dim);
-      font-size: 13px;
-    }
-
-    .fab .tool:hover {
-      background: var(--surface-3);
-      color: var(--text);
-    }
-
-    .fab .tool.active {
-      background: var(--text);
-      color: var(--bg);
-    }
-
-    .fab .tool.danger:hover {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    .fab .divider {
-      width: 1px;
-      height: 22px;
-      background: var(--border-2);
-      margin: 0 3px;
-      flex-shrink: 0;
-    }
-
-    .fab .swatch {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-
-    .fab .swatch.active {
-      border-color: #fff;
-      transform: scale(1.1);
-    }
-
-    .fab .swatch.white { border-color: #444; }
-    .fab .swatch.white.active { border-color: #fff; }
-
-    /* ----- SIDEBAR ----- */
-    .sidebar {
-      display: none;
-      width: 300px;
-      flex-shrink: 0;
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      overflow-y: auto;
-      padding: 16px;
-    }
-
     .sidebar.viewer .side-section:not(:last-child) .tools-grid,
     .sidebar.viewer .side-section:not(:last-child) input[type=range],
     .sidebar.viewer .side-section:not(:last-child) .swatches-row,
     .sidebar.viewer .side-section:not(:last-child) .upload-btn,
-    .sidebar.viewer .side-section:not(:last-child) .page-controls {
-      pointer-events: none;
-      opacity: .35;
+    .sidebar.viewer .side-section:not(:last-child) .page-controls{pointer-events:none;opacity:.35}
+    .side-section{margin-bottom:22px}
+    .side-label{
+      font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--text-dimmer);margin-bottom:10px;display:flex;align-items:center;gap:6px;
+    }
+    .side-label i{font-size:10px}
+    .tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+    .tool-btn{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+      padding:10px 2px;background:var(--surface-2);border:1px solid var(--border);
+      border-radius:8px;color:var(--text-dim);font-size:9px;font-weight:500;
+    }
+    .tool-btn i{font-size:14px}
+    .tool-btn:hover{background:var(--surface-3);color:var(--text)}
+    .tool-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+    .swatches-row{display:flex;gap:7px;flex-wrap:wrap}
+    .swatch-lg{
+      width:26px;height:26px;border-radius:50%;cursor:pointer;
+      border:2px solid transparent;
+    }
+    .swatch-lg.active{border-color:#fff;transform:scale(1.08)}
+    .swatch-lg.white{border-color:#444}
+    .swatch-lg.white.active{border-color:#fff}
+
+    input[type=range]{
+      -webkit-appearance:none;appearance:none;width:100%;height:4px;
+      background:var(--surface-3);border-radius:2px;outline:none;
+    }
+    input[type=range]::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;width:16px;height:16px;
+      border-radius:50%;background:var(--text);cursor:pointer;border:2px solid var(--surface);
+    }
+    input[type=range]::-moz-range-thumb{
+      width:16px;height:16px;border-radius:50%;background:var(--text);
+      cursor:pointer;border:2px solid var(--surface);
+    }
+    .slider-head{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:8px}
+
+    .upload-btn{
+      display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;
+      background:var(--surface-2);border:1px dashed var(--border-2);border-radius:8px;
+      color:var(--text-dim);font-size:12px;font-weight:500;
+    }
+    .upload-btn:hover{background:var(--surface-3);color:var(--text);border-color:var(--text-dim)}
+    .file-info{
+      margin-top:10px;padding:10px;background:var(--surface-2);
+      border-radius:8px;font-size:11px;color:var(--text-dim);
+    }
+    .file-info .name{color:var(--text);font-weight:500;display:block;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .page-controls{display:flex;gap:6px;margin-top:10px}
+    .page-btn{
+      flex:1;padding:9px;background:var(--surface-2);border:1px solid var(--border);
+      border-radius:8px;color:var(--text-dim);font-size:11px;font-weight:500;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+    .page-btn:hover:not(:disabled){background:var(--surface-3);color:var(--text)}
+    .page-btn:disabled{opacity:.35;cursor:not-allowed}
+    .page-btn.remove:hover:not(:disabled){background:var(--danger);color:#fff}
+    .status-line{
+      display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--surface-2);
+      border-radius:8px;font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;
+    }
+    .status-line i{font-size:10px;color:var(--text-dimmer)}
+    .status-line.ok i{color:var(--success)}
+    .status-line.err i{color:var(--danger)}
+    .status-line .room{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    .drawer-backdrop{
+      position:fixed;inset:0;background:rgba(0,0,0,.7);
+      backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;
+    }
+    .drawer-backdrop.open{opacity:1;pointer-events:auto}
+    .drawer{
+      position:fixed;left:0;right:0;bottom:0;background:var(--surface);
+      border-top:1px solid var(--border-2);border-radius:20px 20px 0 0;
+      padding:10px 16px 24px;max-height:80vh;overflow-y:auto;z-index:201;
+      transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);
+      padding-bottom:calc(24px + env(safe-area-inset-bottom));
+    }
+    .drawer.open{transform:translateY(0)}
+    .drawer-handle{width:36px;height:4px;border-radius:2px;background:var(--border-2);margin:0 auto 14px}
+
+    @media(min-width:900px){
+      .sidebar{display:block}
+      .fab{display:none}
+      .drawer,.drawer-backdrop{display:none}
+    }
+    @media(max-width:899px){
+      .link-bar{max-width:160px}
+      .copy-btn span{display:none}
+      .brand-text{display:none}
+    }
+    @media(max-width:380px){
+      .role-tag{font-size:9px;padding:2px 6px}
+      .zoom-ctrl{right:8px;top:8px}
+      .zoom-ctrl button{width:28px;height:28px}
     }
 
-    .side-section { margin-bottom: 22px; }
-
-    .side-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--text-dimmer);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    /* ===== NEX TECH DASHBOARD ===== */
+    .nex-dashboard{
+      position:fixed;inset:0;background:#000;z-index:300;
+      display:flex;flex-direction:column;padding:28px 24px 24px;
+      overflow-y:auto;font-family:'Inter',sans-serif;color:#fff;
+      animation:fadeIn .35s ease;
     }
-
-    .side-label i { font-size: 10px; }
-
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .nex-dashboard.hidden{display:none}
+    .nex-header{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .nex-logo{
+      width:40px;height:40px;border-radius:12px;background:#fff;color:#000;
+      display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;
+      letter-spacing:-.02em;flex-shrink:0;
     }
-
-    .tool-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 10px 2px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-dim);
-      font-size: 9px;
-      font-weight: 500;
+    .nex-header h1{font-size:20px;font-weight:700;letter-spacing:-.03em;color:#fff}
+    .nex-header h1 span{font-weight:400;color:#8a8a8a;font-size:14px;margin-left:8px}
+    .nex-badge{
+      background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;
+      padding:4px 14px;font-size:11px;color:#aaa;display:flex;align-items:center;gap:6px;margin-left:auto;
     }
-
-    .tool-btn i { font-size: 14px; }
-
-    .tool-btn:hover {
-      background: var(--surface-3);
-      color: var(--text);
+    .nex-badge i{font-size:10px;color:#22c55e}
+    .nex-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;width:100%}
+    @media(max-width:680px){.nex-grid{grid-template-columns:1fr}}
+    .nex-card{
+      background:#0a0a0a;border:1px solid #1f1f1f;border-radius:16px;
+      padding:20px 18px 18px;transition:border-color .2s;
     }
-
-    .tool-btn.active {
-      background: var(--text);
-      color: var(--bg);
-      border-color: var(--text);
+    .nex-card:hover{border-color:#2a2a2a}
+    .nex-card .card-icon{
+      width:36px;height:36px;border-radius:10px;background:#1a1a1a;
+      display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;
+      margin-bottom:14px;border:1px solid #2a2a2a;
     }
-
-    .swatches-row {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
+    .nex-card h2{font-size:15px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
+    .nex-card p{font-size:12px;color:#8a8a8a;line-height:1.5;margin-bottom:18px}
+    .nex-btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;
+      background:#fff;color:#000;transition:all .15s;border:1px solid transparent;
+      width:100%;letter-spacing:-.01em;
     }
-
-    .swatch-lg {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
+    .nex-btn:hover{background:#e5e5e5;transform:scale(.99)}
+    .nex-btn.outline{background:transparent;color:#fff;border:1px solid #2a2a2a}
+    .nex-btn.outline:hover{background:#1a1a1a;border-color:#3a3a3a}
+    .nex-btn i{font-size:13px}
+    .nex-input-group{display:flex;gap:8px;margin-top:12px}
+    .nex-input{
+      flex:1;padding:10px 14px;background:#0a0a0a;border:1px solid #2a2a2a;
+      border-radius:10px;color:#fff;font-size:12px;font-family:'JetBrains Mono',monospace;
+      outline:none;transition:border-color .15s;min-width:0;
     }
-
-    .swatch-lg.active {
-      border-color: #fff;
-      transform: scale(1.08);
+    .nex-input:focus{border-color:#555}
+    .nex-input::placeholder{color:#444;font-family:'Inter',sans-serif}
+    .nex-session-info{
+      margin-top:14px;font-size:11px;color:#555;display:flex;align-items:center;gap:6px;
+      font-family:'JetBrains Mono',monospace;word-break:break-all;
     }
-
-    .swatch-lg.white { border-color: #444; }
-    .swatch-lg.white.active { border-color: #fff; }
-
-    input[type=range] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 4px;
-      background: var(--surface-3);
-      border-radius: 2px;
-      outline: none;
+    .nex-session-info i{font-size:10px;color:#8a8a8a}
+    .nex-footer{
+      margin-top:28px;font-size:11px;color:#444;display:flex;align-items:center;gap:12px;
+      border-top:1px solid #1f1f1f;padding-top:18px;max-width:900px;width:100%;flex-wrap:wrap;
     }
+    .nex-footer i{color:#555}
 
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--text);
-      cursor: pointer;
-      border: 2px solid var(--surface);
+    /* Hide main UI while dashboard is shown */
+    body.main-ui-hidden .header,
+    body.main-ui-hidden .layout,
+    body.main-ui-hidden .fab,
+    body.main-ui-hidden .drawer,
+    body.main-ui-hidden .drawer-backdrop,
+    body.main-ui-hidden #pdfInput{display:none !important}
+
+    /* Viewer notice banner */
+    .viewer-banner{
+      display:none;align-items:center;gap:8px;
+      padding:8px 14px;background:var(--surface-2);
+      border-bottom:1px solid var(--border);
+      font-size:11px;color:var(--text-dim);
+      flex-shrink:0;font-family:'JetBrains Mono',monospace;
     }
-
-    input[type=range]::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--text);
-      cursor: pointer;
-      border: 2px solid var(--surface);
-    }
-
-    .slider-head {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-bottom: 8px;
-    }
-
-    .upload-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 12px;
-      background: var(--surface-2);
-      border: 1px dashed var(--border-2);
-      border-radius: 8px;
-      color: var(--text-dim);
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .upload-btn:hover {
-      background: var(--surface-3);
-      color: var(--text);
-      border-color: var(--text-dim);
-    }
-
-    .file-info {
-      margin-top: 10px;
-      padding: 10px;
-      background: var(--surface-2);
-      border-radius: 8px;
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .file-info .name {
-      color: var(--text);
-      font-weight: 500;
-      display: block;
-      margin-bottom: 3px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .page-controls {
-      display: flex;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    .page-btn {
-      flex: 1;
-      padding: 9px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-dim);
-      font-size: 11px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .page-btn:hover:not(:disabled) {
-      background: var(--surface-3);
-      color: var(--text);
-    }
-
-    .page-btn:disabled {
-      opacity: .35;
-      cursor: not-allowed;
-    }
-
-    .page-btn.remove:hover:not(:disabled) {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    .status-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 11px;
-      background: var(--surface-2);
-      border-radius: 8px;
-      font-size: 11px;
-      color: var(--text-dim);
-      font-family: var(--mono);
-    }
-
-    .status-line i {
-      font-size: 10px;
-      color: var(--text-dimmer);
-    }
-
-    .status-line.ok i { color: var(--success); }
-    .status-line.err i { color: var(--danger); }
-
-    .status-line .room {
-      color: var(--text);
-      font-weight: 500;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* ----- DRAWER (mobile) ----- */
-    .drawer-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .7);
-      backdrop-filter: blur(4px);
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .2s;
-    }
-
-    .drawer-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .drawer {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--surface);
-      border-top: 1px solid var(--border-2);
-      border-radius: 20px 20px 0 0;
-      padding: 10px 16px 24px;
-      max-height: 80vh;
-      overflow-y: auto;
-      z-index: 201;
-      transform: translateY(100%);
-      transition: transform .25s cubic-bezier(.4, 0, .2, 1);
-      padding-bottom: calc(24px + env(safe-area-inset-bottom));
-    }
-
-    .drawer.open { transform: translateY(0); }
-
-    .drawer-handle {
-      width: 36px;
-      height: 4px;
-      border-radius: 2px;
-      background: var(--border-2);
-      margin: 0 auto 14px;
-    }
-
-    /* ----- RESPONSIVE ----- */
-    @media(min-width:900px) {
-      .sidebar { display: block; }
-      .fab { display: none; }
-      .drawer, .drawer-backdrop { display: none; }
-    }
-
-    @media(max-width:899px) {
-      .link-bar { max-width: 160px; }
-      .copy-btn span { display: none; }
-      .brand-text { display: none; }
-    }
-
-    @media(max-width:380px) {
-      .role-tag { font-size: 9px; padding: 2px 6px; }
-      .zoom-ctrl { right: 8px; top: 8px; }
-      .zoom-ctrl button { width: 28px; height: 28px; }
-    }
-
-    /* ----- NEW DASHBOARD STYLES (Nex Tech) ----- */
-    .nex-dashboard {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      z-index: 300;
-      display: flex;
-      flex-direction: column;
-      padding: 28px 24px 24px;
-      overflow-y: auto;
-      font-family: 'Inter', sans-serif;
-      color: #fff;
-      animation: fadeIn .35s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .nex-dashboard.hidden {
-      display: none;
-    }
-
-    .nex-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-
-    .nex-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: #fff;
-      color: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      flex-shrink: 0;
-    }
-
-    .nex-header h1 {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: #fff;
-    }
-
-    .nex-header h1 span {
-      font-weight: 400;
-      color: #8a8a8a;
-      font-size: 14px;
-      margin-left: 8px;
-    }
-
-    .nex-badge {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 20px;
-      padding: 4px 14px;
-      font-size: 11px;
-      color: #aaa;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: auto;
-    }
-
-    .nex-badge i {
-      font-size: 10px;
-      color: #22c55e;
-    }
-
-    .nex-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      max-width: 900px;
-      width: 100%;
-    }
-
-    @media(max-width:680px) {
-      .nex-grid { grid-template-columns: 1fr; }
-    }
-
-    .nex-card {
-      background: #0a0a0a;
-      border: 1px solid #1f1f1f;
-      border-radius: 16px;
-      padding: 20px 18px 18px;
-      transition: border-color .2s;
-    }
-
-    .nex-card:hover {
-      border-color: #2a2a2a;
-    }
-
-    .nex-card .card-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: #1a1a1a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      color: #fff;
-      margin-bottom: 14px;
-      border: 1px solid #2a2a2a;
-    }
-
-    .nex-card h2 {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      margin-bottom: 6px;
-    }
-
-    .nex-card p {
-      font-size: 12px;
-      color: #8a8a8a;
-      line-height: 1.5;
-      margin-bottom: 18px;
-    }
-
-    .nex-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      background: #fff;
-      color: #000;
-      transition: all .15s;
-      border: 1px solid transparent;
-      width: 100%;
-      letter-spacing: -0.01em;
-    }
-
-    .nex-btn:hover {
-      background: #e5e5e5;
-      transform: scale(0.99);
-    }
-
-    .nex-btn.outline {
-      background: transparent;
-      color: #fff;
-      border: 1px solid #2a2a2a;
-    }
-
-    .nex-btn.outline:hover {
-      background: #1a1a1a;
-      border-color: #3a3a3a;
-    }
-
-    .nex-btn i {
-      font-size: 13px;
-    }
-
-    .nex-input-group {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .nex-input {
-      flex: 1;
-      padding: 10px 14px;
-      background: #0a0a0a;
-      border: 1px solid #2a2a2a;
-      border-radius: 10px;
-      color: #fff;
-      font-size: 12px;
-      font-family: var(--mono);
-      outline: none;
-      transition: border-color .15s;
-      min-width: 0;
-    }
-
-    .nex-input:focus {
-      border-color: #555;
-    }
-
-    .nex-input::placeholder {
-      color: #444;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .nex-session-info {
-      margin-top: 14px;
-      font-size: 11px;
-      color: #555;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--mono);
-      word-break: break-all;
-    }
-
-    .nex-session-info i {
-      font-size: 10px;
-      color: #8a8a8a;
-    }
-
-    .nex-footer {
-      margin-top: 28px;
-      font-size: 11px;
-      color: #444;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-top: 1px solid #1f1f1f;
-      padding-top: 18px;
-      max-width: 900px;
-      width: 100%;
-      flex-wrap: wrap;
-    }
-
-    .nex-footer i {
-      color: #555;
-    }
-
-    /* hide main UI initially */
-    .main-ui-hidden .header,
-    .main-ui-hidden .layout,
-    .main-ui-hidden .fab,
-    .main-ui-hidden .drawer,
-    .main-ui-hidden .drawer-backdrop,
-    .main-ui-hidden #pdfInput {
-      display: none !important;
-    }
-
-    .nex-dashboard.hidden + .header,
-    .nex-dashboard.hidden ~ .layout,
-    .nex-dashboard.hidden ~ .fab,
-    .nex-dashboard.hidden ~ .drawer,
-    .nex-dashboard.hidden ~ .drawer-backdrop {
-      /* handled via class toggle on body */
-    }
+    .viewer-banner.show{display:flex}
+    .viewer-banner i{color:var(--accent);font-size:11px}
+    .viewer-banner strong{color:var(--text);font-weight:600}
   </style>
 </head>
 <body class="main-ui-hidden">
@@ -922,26 +329,20 @@
     <div class="nex-header">
       <div class="nex-logo">N</div>
       <h1>Nex Tech <span>Live Board</span></h1>
-      <div class="nex-badge">
-        <i class="fa-solid fa-circle"></i> secure session
-      </div>
+      <div class="nex-badge"><i class="fa-solid fa-circle"></i> secure session</div>
     </div>
 
     <div class="nex-grid">
-      <!-- Card 1: New Session -->
       <div class="nex-card">
         <div class="card-icon"><i class="fa-solid fa-plus"></i></div>
         <h2>Generate New Link</h2>
         <p>Create a fresh board session. You will be the host with full control.</p>
-        <button class="nex-btn" id="newSessionBtn">
-          <i class="fa-solid fa-bolt"></i> Generate new link
-        </button>
+        <button class="nex-btn" id="newSessionBtn"><i class="fa-solid fa-bolt"></i> Generate new link</button>
         <div class="nex-session-info" id="newLinkPreview">
           <i class="fa-regular fa-link"></i> <span id="newLinkText">—</span>
         </div>
       </div>
 
-      <!-- Card 2: Continue Session -->
       <div class="nex-card">
         <div class="card-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
         <h2>Continue Old Session</h2>
@@ -952,9 +353,7 @@
             <i class="fa-solid fa-arrow-right"></i>
           </button>
         </div>
-        <div class="nex-session-info">
-          <i class="fa-solid fa-shield-halved"></i> Only you have the ID
-        </div>
+        <div class="nex-session-info"><i class="fa-solid fa-shield-halved"></i> Only you have the ID</div>
       </div>
     </div>
 
@@ -965,7 +364,7 @@
     </div>
   </div>
 
-  <!-- ================= ORIGINAL UI (hidden initially) ================= -->
+  <!-- ================= MAIN UI ================= -->
   <header class="header" id="mainHeader">
     <div class="brand">
       <div class="brand-logo"><i class="fa-solid fa-chalkboard"></i></div>
@@ -980,6 +379,12 @@
     </div>
     <button class="icon-btn" id="menuBtn"><i class="fa-solid fa-sliders"></i></button>
   </header>
+
+  <!-- Viewer banner -->
+  <div class="viewer-banner" id="viewerBanner">
+    <i class="fa-solid fa-eye"></i>
+    <span>You are viewing as <strong>Viewer</strong> — drawing is disabled</span>
+  </div>
 
   <div class="layout" id="mainLayout">
     <div class="stage" id="stage">
@@ -998,23 +403,19 @@
         <div class="side-label"><i class="fa-solid fa-toolbox"></i> Drawing</div>
         <div class="tools-grid" id="toolsGridD"></div>
       </div>
-
       <div class="side-section">
         <div class="side-label"><i class="fa-solid fa-palette"></i> Color</div>
         <div class="swatches-row" id="colorsD"></div>
       </div>
-
       <div class="side-section">
         <div class="side-label"><i class="fa-solid fa-circle-half-stroke"></i> Size</div>
         <div class="slider-head"><span>Stroke</span><span class="mono" id="sizeVal">4px</span></div>
         <input type="range" id="sizeSlider" min="1" max="30" value="4">
       </div>
-
       <div class="side-section">
         <div class="side-label"><i class="fa-solid fa-layer-group"></i> Actions</div>
         <div class="tools-grid" id="actionsGridD"></div>
       </div>
-
       <div class="side-section">
         <div class="side-label"><i class="fa-solid fa-file-pdf"></i> Document</div>
         <label class="upload-btn" for="pdfInput"><i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF / Image</label>
@@ -1030,7 +431,6 @@
           <button class="page-btn remove" id="removeFile"><i class="fa-solid fa-xmark"></i>Remove</button>
         </div>
       </div>
-
       <div class="side-section">
         <div class="side-label"><i class="fa-solid fa-tower-broadcast"></i> Status</div>
         <div class="status-line" id="statusLine">
@@ -1053,13 +453,11 @@
   <div class="drawer-backdrop" id="backdrop"></div>
   <div class="drawer" id="drawer">
     <div class="drawer-handle"></div>
-
     <div class="side-section">
       <div class="side-label"><i class="fa-solid fa-circle-half-stroke"></i> Size</div>
       <div class="slider-head"><span>Stroke</span><span class="mono" id="sizeValM">4px</span></div>
       <input type="range" id="sizeSliderM" min="1" max="30" value="4">
     </div>
-
     <div class="side-section">
       <div class="side-label"><i class="fa-solid fa-file-pdf"></i> Document</div>
       <label class="upload-btn" for="pdfInput"><i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF / Image</label>
@@ -1075,7 +473,6 @@
         <button class="page-btn remove" id="removeFileM"><i class="fa-solid fa-xmark"></i>Remove</button>
       </div>
     </div>
-
     <div class="side-section">
       <div class="side-label"><i class="fa-solid fa-tower-broadcast"></i> Status</div>
       <div class="status-line" id="statusLineM">
@@ -1088,7 +485,7 @@
 
   <input type="file" id="pdfInput" accept="application/pdf,image/*" style="display:none">
 
-  <!-- ================= FIREBASE + APP SCRIPT ================= -->
+  <!-- ================= APP SCRIPT ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
@@ -1108,7 +505,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ========== PDF.js loader ==========
+    // ===== PDF.js loader =====
     const pdfjsScript = document.createElement('script');
     pdfjsScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
     pdfjsScript.onload = () => {
@@ -1118,7 +515,7 @@
     pdfjsScript.onerror = () => { boot(); };
     document.head.appendChild(pdfjsScript);
 
-    // ========== DOM refs ==========
+    // ===== DOM =====
     const $ = id => document.getElementById(id);
     const canvas = $('canvas'), ctx = canvas.getContext('2d');
     const stage = $('stage');
@@ -1135,13 +532,14 @@
     const continueSessionBtn = $('continueSessionBtn');
     const sessionIdInput = $('sessionIdInput');
     const newLinkText = $('newLinkText');
+    const viewerBanner = $('viewerBanner');
 
-    // ========== WORLD / VIEW ==========
+    // ===== WORLD / VIEW =====
     const WORLD_W = 1920;
     const WORLD_H = 1080;
     let view = { scale: 1, offsetX: 0, offsetY: 0, userScale: 1, userPanX: 0, userPanY: 0 };
 
-    // ========== STATE ==========
+    // ===== STATE =====
     let roomId = null, isHost = false;
     let dpr = 1, W = 0, H = 0;
     let objects = [];
@@ -1162,7 +560,6 @@
     const undoStack = [];
 
     const COLORS = ['#e11d48', '#f59e0b', '#22c55e', '#2b6aff', '#8b5cf6', '#000000', '#ffffff'];
-
     const TOOLS = [
       { id: 'pen', icon: 'fa-pen', label: 'Pen' },
       { id: 'eraser', icon: 'fa-eraser', label: 'Eraser' },
@@ -1174,33 +571,24 @@
       { id: 'text', icon: 'fa-font', label: 'Text' },
       { id: 'select', icon: 'fa-arrow-pointer', label: 'Select' },
     ];
-
     const ACTIONS = [
       { id: 'undo', icon: 'fa-rotate-left', label: 'Undo' },
       { id: 'clear', icon: 'fa-trash', label: 'Clear' },
     ];
 
-    // ========== VIEW MATH ==========
+    // ===== VIEW MATH =====
     function computeView() {
       const baseScale = Math.min(W / WORLD_W, H / WORLD_H);
       const scale = baseScale * view.userScale;
       view.scale = scale;
       view.offsetX = (W - WORLD_W * scale) / 2 + view.userPanX;
       view.offsetY = (H - WORLD_H * scale) / 2 + view.userPanY;
-      if (zoomLabel) {
-        zoomLabel.textContent = Math.round(view.userScale * 100) + '%';
-      }
+      if (zoomLabel) zoomLabel.textContent = Math.round(view.userScale * 100) + '%';
     }
-    const toWorld = (sx, sy) => ({
-      x: (sx - view.offsetX) / view.scale,
-      y: (sy - view.offsetY) / view.scale
-    });
-    const toScreen = (wx, wy) => ({
-      x: wx * view.scale + view.offsetX,
-      y: wy * view.scale + view.offsetY
-    });
+    const toWorld = (sx, sy) => ({ x: (sx - view.offsetX) / view.scale, y: (sy - view.offsetY) / view.scale });
+    const toScreen = (wx, wy) => ({ x: wx * view.scale + view.offsetX, y: wy * view.scale + view.offsetY });
 
-    // ========== CANVAS SETUP ==========
+    // ===== CANVAS SETUP =====
     function resizeCanvas() {
       const r = stage.getBoundingClientRect();
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1214,7 +602,7 @@
       redraw();
     }
 
-    // ========== PDF LAYER CACHE ==========
+    // ===== PDF LAYER CACHE =====
     function buildPdfLayer() {
       if (!pdfImage || !pdfImage.img) { pdfLayerCanvas = null; return; }
       const img = pdfImage.img;
@@ -1225,15 +613,12 @@
       else w = WORLD_H * aspect;
       const x = (WORLD_W - w) / 2;
       const y = (WORLD_H - h) / 2;
-
       const CACHE_SCALE = Math.min(2, Math.max(1, dpr * view.scale * 1.0));
       const cw = Math.round(w * CACHE_SCALE);
       const ch = Math.round(h * CACHE_SCALE);
       if (cw < 4 || ch < 4) { pdfLayerCanvas = null; return; }
-
       const c2 = document.createElement('canvas');
-      c2.width = cw;
-      c2.height = ch;
+      c2.width = cw; c2.height = ch;
       const c2ctx = c2.getContext('2d');
       c2ctx.fillStyle = '#fff';
       c2ctx.fillRect(0, 0, cw, ch);
@@ -1241,131 +626,84 @@
       pdfLayerCanvas = { canvas: c2, worldRect: { x, y, w, h } };
     }
 
-    // ========== RENDER ==========
+    // ===== RENDER =====
     function redraw() {
       ctx.save();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, W, H);
-
       if (pdfLayerCanvas) {
         const wr = pdfLayerCanvas.worldRect;
-        const sx = view.offsetX + wr.x * view.scale;
-        const sy = view.offsetY + wr.y * view.scale;
-        const sw = wr.w * view.scale;
-        const sh = wr.h * view.scale;
-        ctx.drawImage(pdfLayerCanvas.canvas, sx, sy, sw, sh);
+        ctx.drawImage(pdfLayerCanvas.canvas,
+          view.offsetX + wr.x * view.scale,
+          view.offsetY + wr.y * view.scale,
+          wr.w * view.scale, wr.h * view.scale);
       }
-
       ctx.save();
       ctx.translate(view.offsetX, view.offsetY);
       ctx.scale(view.scale, view.scale);
-
       for (const o of objects) drawObject(o);
       if (liveObj) drawObject(liveObj);
       ctx.restore();
-
       if (selectedId) {
         const o = objects.find(x => x.id === selectedId);
         if (o) drawSelection(o);
       }
-
       ctx.restore();
     }
 
     function drawObject(o) {
       if (!o) return;
       ctx.save();
-      ctx.strokeStyle = o.color;
-      ctx.fillStyle = o.color;
-      ctx.lineWidth = o.size;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
+      ctx.strokeStyle = o.color; ctx.fillStyle = o.color;
+      ctx.lineWidth = o.size; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       if (o.type === 'stroke') {
         if (!o.pts || o.pts.length < 2) { ctx.restore(); return; }
         ctx.beginPath();
         ctx.moveTo(o.pts[0].x, o.pts[0].y);
         for (let i = 1; i < o.pts.length; i++) ctx.lineTo(o.pts[i].x, o.pts[i].y);
         ctx.stroke();
-      }
-      else if (o.type === 'line') {
-        ctx.beginPath();
-        ctx.moveTo(o.x1, o.y1);
-        ctx.lineTo(o.x2, o.y2);
-        ctx.stroke();
-      }
-      else if (o.type === 'arrow') {
+      } else if (o.type === 'line') {
+        ctx.beginPath(); ctx.moveTo(o.x1, o.y1); ctx.lineTo(o.x2, o.y2); ctx.stroke();
+      } else if (o.type === 'arrow') {
         const angle = Math.atan2(o.y2 - o.y1, o.x2 - o.x1);
         const headLen = Math.max(10, o.size * 4);
-        ctx.beginPath();
-        ctx.moveTo(o.x1, o.y1);
-        ctx.lineTo(o.x2, o.y2);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(o.x1, o.y1); ctx.lineTo(o.x2, o.y2); ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(o.x2, o.y2);
         ctx.lineTo(o.x2 - headLen * Math.cos(angle - Math.PI / 6), o.y2 - headLen * Math.sin(angle - Math.PI / 6));
         ctx.moveTo(o.x2, o.y2);
         ctx.lineTo(o.x2 - headLen * Math.cos(angle + Math.PI / 6), o.y2 - headLen * Math.sin(angle + Math.PI / 6));
         ctx.stroke();
-      }
-      else if (o.type === 'rect') {
+      } else if (o.type === 'rect') {
         const x = Math.min(o.x1, o.x2), y = Math.min(o.y1, o.y2);
-        const w = Math.abs(o.x2 - o.x1), h = Math.abs(o.y2 - o.y1);
-        ctx.strokeRect(x, y, w, h);
-      }
-      else if (o.type === 'circle') {
+        ctx.strokeRect(x, y, Math.abs(o.x2 - o.x1), Math.abs(o.y2 - o.y1));
+      } else if (o.type === 'circle') {
         const cx = (o.x1 + o.x2) / 2, cy = (o.y1 + o.y2) / 2;
-        const rx = Math.abs(o.x2 - o.x1) / 2, ry = Math.abs(o.y2 - o.y1) / 2;
         ctx.beginPath();
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx, cy, Math.abs(o.x2 - o.x1) / 2, Math.abs(o.y2 - o.y1) / 2, 0, 0, Math.PI * 2);
         ctx.stroke();
-      }
-      else if (o.type === 'triangle') {
-        const x1 = o.x1, y1 = o.y1, x2 = o.x2, y2 = o.y2;
-        const x3 = (x1 + x2) / 2, y3 = y1;
-        ctx.beginPath();
-        ctx.moveTo(x1, y2);
-        ctx.lineTo(x2, y2);
-        ctx.lineTo(x3, y1);
-        ctx.closePath();
-        ctx.stroke();
-      }
-      else if (o.type === 'text') {
-        const fs = o.size * 5;
-        ctx.font = `600 ${fs}px Inter, sans-serif`;
+      } else if (o.type === 'triangle') {
+        const x3 = (o.x1 + o.x2) / 2;
+        ctx.beginPath(); ctx.moveTo(o.x1, o.y2); ctx.lineTo(o.x2, o.y2); ctx.lineTo(x3, o.y1); ctx.closePath(); ctx.stroke();
+      } else if (o.type === 'text') {
+        ctx.font = `600 ${o.size * 5}px Inter, sans-serif`;
         ctx.textBaseline = 'top';
         ctx.fillText(o.text, o.x, o.y);
       }
-
       ctx.restore();
     }
 
     function drawSelection(o) {
-      const box = getObjectBounds(o);
-      if (!box) return;
-      const tl = toScreen(box.x, box.y);
-      const br = toScreen(box.x + box.w, box.y + box.h);
-      const x = tl.x - 4, y = tl.y - 4;
-      const w = br.x - tl.x + 8, h = br.y - tl.y + 8;
-
+      const box = getObjectBounds(o); if (!box) return;
+      const tl = toScreen(box.x, box.y), br = toScreen(box.x + box.w, box.y + box.h);
+      const x = tl.x - 4, y = tl.y - 4, w = br.x - tl.x + 8, h = br.y - tl.y + 8;
       ctx.save();
-      ctx.strokeStyle = '#2b6aff';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([5, 4]);
-      ctx.strokeRect(x, y, w, h);
-      ctx.setLineDash([]);
-
-      const corners = [
-        { x: x, y: y }, { x: x + w, y: y },
-        { x: x, y: y + h }, { x: x + w, y: y + h }
-      ];
-      for (const c of corners) {
-        ctx.fillStyle = '#fff';
-        ctx.strokeStyle = '#2b6aff';
-        ctx.lineWidth = 2;
-        ctx.fillRect(c.x - 4, c.y - 4, 8, 8);
-        ctx.strokeRect(c.x - 4, c.y - 4, 8, 8);
+      ctx.strokeStyle = '#2b6aff'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+      ctx.strokeRect(x, y, w, h); ctx.setLineDash([]);
+      for (const c of [{ x, y }, { x: x + w, y }, { x, y: y + h }, { x: x + w, y: y + h }]) {
+        ctx.fillStyle = '#fff'; ctx.strokeStyle = '#2b6aff'; ctx.lineWidth = 2;
+        ctx.fillRect(c.x - 4, c.y - 4, 8, 8); ctx.strokeRect(c.x - 4, c.y - 4, 8, 8);
       }
       ctx.restore();
     }
@@ -1386,14 +724,14 @@
         const m = c2.measureText(o.text);
         return { x: o.x, y: o.y, w: m.width, h: o.size * 5 * 1.2 };
       }
-      const x = Math.min(o.x1, o.x2);
-      const y = Math.min(o.y1, o.y2);
-      return { x, y, w: Math.abs(o.x2 - o.x1), h: Math.abs(o.y2 - o.y1) };
+      return {
+        x: Math.min(o.x1, o.x2), y: Math.min(o.y1, o.y2),
+        w: Math.abs(o.x2 - o.x1), h: Math.abs(o.y2 - o.y1)
+      };
     }
 
     function hitTest(o, wx, wy) {
-      const b = getObjectBounds(o);
-      if (!b) return false;
+      const b = getObjectBounds(o); if (!b) return false;
       const pad = 10;
       return wx >= b.x - pad && wx <= b.x + b.w + pad && wy >= b.y - pad && wy <= b.y + b.h + pad;
     }
@@ -1408,7 +746,7 @@
       return false;
     }
 
-    // ========== POINTER EVENTS ==========
+    // ===== POINTER EVENTS =====
     let penActive = false;
     let touchCount = 0;
 
@@ -1416,22 +754,14 @@
       const r = canvas.getBoundingClientRect();
       return toWorld(e.clientX - r.left, e.clientY - r.top);
     }
-
     function isMultiTouch(e) { return e.pointerType === 'touch' && touchCount > 1; }
 
     function onPointerDown(e) {
-      if (!isHost) return;
-
+      if (!isHost) return; // ← viewers cannot draw
       if (e.pointerType === 'touch') touchCount++;
-
       if (e.pointerType === 'pen') penActive = true;
       if (e.pointerType === 'touch' && penActive) return;
-
-      if (isMultiTouch(e)) {
-        if (drawing) cancelLive();
-        return;
-      }
-
+      if (isMultiTouch(e)) { if (drawing) cancelLive(); return; }
       if (editingTextId) { commitText(); return; }
 
       const p = getPoint(e);
@@ -1453,10 +783,7 @@
             for (const c of corners) {
               const sc = toScreen(c.x, c.y);
               if (Math.abs(screenP.x - sc.x) < 16 && Math.abs(screenP.y - sc.y) < 16) {
-                dragState = {
-                  type: 'resize', id: selectedId, corner: c.corner,
-                  orig: JSON.parse(JSON.stringify(o)), startPt: p
-                };
+                dragState = { type: 'resize', id: selectedId, corner: c.corner, orig: JSON.parse(JSON.stringify(o)), startPt: p };
                 canvas.setPointerCapture?.(e.pointerId);
                 return;
               }
@@ -1466,32 +793,21 @@
         for (let i = objects.length - 1; i >= 0; i--) {
           if (hitTest(objects[i], p.x, p.y)) {
             selectedId = objects[i].id;
-            dragState = {
-              type: 'move', id: selectedId, startPt: p,
-              orig: JSON.parse(JSON.stringify(objects[i]))
-            };
+            dragState = { type: 'move', id: selectedId, startPt: p, orig: JSON.parse(JSON.stringify(objects[i])) };
             redraw();
             canvas.setPointerCapture?.(e.pointerId);
             return;
           }
         }
-        selectedId = null;
-        redraw();
-        return;
+        selectedId = null; redraw(); return;
       }
 
-      if (currentTool === 'text') {
-        placeTextInput(p);
-        drawing = false;
-        return;
-      }
+      if (currentTool === 'text') { placeTextInput(p); drawing = false; return; }
 
       if (currentTool === 'eraser') {
         const radius = Math.max(14, (currentSize * 4) / Math.max(0.2, view.scale));
         const removed = [];
-        for (const o of objects) {
-          if (o.type === 'stroke' && strokeHit(o, p.x, p.y, radius)) removed.push(o.id);
-        }
+        for (const o of objects) if (o.type === 'stroke' && strokeHit(o, p.x, p.y, radius)) removed.push(o.id);
         if (removed.length) {
           objects = objects.filter(o => !removed.includes(o.id));
           for (const id of removed) { undoStack.push({ type: 'delete', id }); deleteObject(id); }
@@ -1503,101 +819,72 @@
 
       if (currentTool === 'pen') {
         liveObj = { id: genId(), type: 'stroke', color: currentColor, size: currentSize, pts: [p] };
-      } else if (currentTool === 'line' || currentTool === 'arrow' ||
-        currentTool === 'rect' || currentTool === 'circle' || currentTool === 'triangle') {
-        liveObj = {
-          id: genId(), type: currentTool, color: currentColor, size: currentSize,
-          x1: p.x, y1: p.y, x2: p.x, y2: p.y
-        };
+      } else if (['line', 'arrow', 'rect', 'circle', 'triangle'].includes(currentTool)) {
+        liveObj = { id: genId(), type: currentTool, color: currentColor, size: currentSize, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
       }
       canvas.setPointerCapture?.(e.pointerId);
     }
 
     function onPointerMove(e) {
+      if (!isHost) return; // ← viewers cannot draw
       if (e.pointerType === 'touch' && penActive) return;
-      if (!drawing || !isHost) return;
+      if (!drawing) return;
       const p = getPoint(e);
 
       if (currentTool === 'select' && dragState) {
         const o = objects.find(x => x.id === dragState.id);
         if (!o) return;
         if (dragState.type === 'move') {
-          const dx = p.x - dragState.startPt.x;
-          const dy = p.y - dragState.startPt.y;
+          const dx = p.x - dragState.startPt.x, dy = p.y - dragState.startPt.y;
           applyTranslate(o, dragState.orig, dx, dy);
         } else if (dragState.type === 'resize') {
           applyResize(o, dragState.orig, dragState.corner, p);
         }
-        redraw();
-        return;
+        redraw(); return;
       }
 
       if (currentTool === 'eraser' && liveObj && liveObj._eraserVisual) {
         const radius = Math.max(14, (currentSize * 4) / Math.max(0.2, view.scale));
         liveObj.pts.push(p);
-        let changed = false;
         for (let i = objects.length - 1; i >= 0; i--) {
           const o = objects[i];
           if (o.type === 'stroke' && strokeHit(o, p.x, p.y, radius)) {
             objects.splice(i, 1);
             undoStack.push({ type: 'delete', id: o.id });
             deleteObject(o.id);
-            changed = true;
           }
         }
-        redraw();
-        return;
+        redraw(); return;
       }
 
       if (!liveObj) return;
-      if (liveObj.type === 'stroke') {
-        liveObj.pts.push(p);
-      } else {
-        liveObj.x2 = p.x;
-        liveObj.y2 = p.y;
-      }
+      if (liveObj.type === 'stroke') liveObj.pts.push(p);
+      else { liveObj.x2 = p.x; liveObj.y2 = p.y; }
       redraw();
     }
 
     function onPointerUp(e) {
+      if (!isHost) return; // ← viewers cannot draw
       if (e.pointerType === 'touch') touchCount = Math.max(0, touchCount - 1);
       if (e.pointerType === 'pen') penActive = false;
 
       if (currentTool === 'select' && dragState) {
         const o = objects.find(x => x.id === dragState.id);
         if (o) saveObject(o, true);
-        dragState = null;
-        drawing = false;
-        return;
+        dragState = null; drawing = false; return;
       }
-
       if (!drawing) { liveObj = null; return; }
       drawing = false;
-
-      if (currentTool === 'eraser') {
-        liveObj = null;
-        redraw();
-        return;
-      }
-
+      if (currentTool === 'eraser') { liveObj = null; redraw(); return; }
       if (!liveObj) return;
-
       if (liveObj.type === 'stroke' && liveObj.pts.length < 2) { liveObj = null; redraw(); return; }
-
       objects.push(liveObj);
       undoStack.push({ type: 'create', id: liveObj.id });
       saveObject(liveObj);
-      liveObj = null;
-      startPt = null;
-      redraw();
+      liveObj = null; startPt = null; redraw();
     }
 
-    function cancelLive() {
-      liveObj = null;
-      drawing = false;
-      dragState = null;
-      redraw();
-    }
+    function cancelLive() { liveObj = null; drawing = false; dragState = null; redraw(); }
 
     function applyTranslate(o, orig, dx, dy) {
       if (o.type === 'stroke') o.pts = orig.pts.map(p => ({ x: p.x + dx, y: p.y + dy }));
@@ -1621,10 +908,7 @@
           const m = c2.measureText(orig.text);
           return { x: orig.x, y: orig.y, w: m.width, h: orig.size * 5 * 1.2 };
         }
-        return {
-          x: Math.min(orig.x1, orig.x2), y: Math.min(orig.y1, orig.y2),
-          w: Math.abs(orig.x2 - orig.x1), h: Math.abs(orig.y2 - orig.y1)
-        };
+        return { x: Math.min(orig.x1, orig.x2), y: Math.min(orig.y1, orig.y2), w: Math.abs(orig.x2 - orig.x1), h: Math.abs(orig.y2 - orig.y1) };
       })();
 
       let newX = b.x, newY = b.y, newW = b.w, newH = b.h;
@@ -1632,66 +916,48 @@
       if (corner === 'tr') { newY = p.y; newW = p.x - b.x; newH = b.y + b.h - p.y; }
       if (corner === 'bl') { newX = p.x; newW = b.x + b.w - p.x; newH = p.y - b.y; }
       if (corner === 'br') { newW = p.x - b.x; newH = p.y - b.y; }
-
-      if (newW < 10) newW = 10;
-      if (newH < 10) newH = 10;
-
+      if (newW < 10) newW = 10; if (newH < 10) newH = 10;
       const sx = newW / Math.max(1, b.w), sy = newH / Math.max(1, b.h);
-
       if (o.type === 'stroke') {
-        o.pts = orig.pts.map(q => ({
-          x: newX + (q.x - b.x) * sx,
-          y: newY + (q.y - b.y) * sy
-        }));
+        o.pts = orig.pts.map(q => ({ x: newX + (q.x - b.x) * sx, y: newY + (q.y - b.y) * sy }));
       } else if (o.type === 'text') {
         o.x = newX; o.y = newY;
-        const newFontSize = Math.max(8, orig.size * 5 * sy);
-        o.size = newFontSize / 5;
+        o.size = Math.max(8, orig.size * 5 * sy) / 5;
       } else {
-        o.x1 = newX; o.y1 = newY;
-        o.x2 = newX + newW; o.y2 = newY + newH;
+        o.x1 = newX; o.y1 = newY; o.x2 = newX + newW; o.y2 = newY + newH;
       }
     }
 
-    // ========== TEXT INPUT ==========
+    // ===== TEXT INPUT =====
     function placeTextInput(worldPt) {
       pendingTextWorld = worldPt;
       const s = toScreen(worldPt.x, worldPt.y);
-      const fontPx = Math.max(12, currentSize * 5 * view.scale);
       textInput.style.left = s.x + 'px';
       textInput.style.top = (s.y - 2) + 'px';
-      textInput.style.fontSize = fontPx + 'px';
+      textInput.style.fontSize = Math.max(12, currentSize * 5 * view.scale) + 'px';
       textInput.value = '';
       textInput.classList.add('show');
       setTimeout(() => textInput.focus(), 10);
       editingTextId = 'new';
     }
-
     function editExistingText(o) {
       pendingTextWorld = { x: o.x, y: o.y };
       const s = toScreen(o.x, o.y);
-      const fontPx = Math.max(12, o.size * 5 * view.scale);
       textInput.style.left = s.x + 'px';
       textInput.style.top = (s.y - 2) + 'px';
-      textInput.style.fontSize = fontPx + 'px';
+      textInput.style.fontSize = Math.max(12, o.size * 5 * view.scale) + 'px';
       textInput.value = o.text;
       textInput.classList.add('show');
       setTimeout(() => textInput.focus(), 10);
       editingTextId = o.id;
     }
-
     function commitText() {
       const val = textInput.value.trim();
-      textInput.classList.remove('show');
-      textInput.blur();
+      textInput.classList.remove('show'); textInput.blur();
       if (!val) { editingTextId = null; pendingTextWorld = null; return; }
-
       if (editingTextId === 'new') {
         if (pendingTextWorld) {
-          const o = {
-            id: genId(), type: 'text', color: currentColor, size: currentSize,
-            x: pendingTextWorld.x, y: pendingTextWorld.y, text: val
-          };
+          const o = { id: genId(), type: 'text', color: currentColor, size: currentSize, x: pendingTextWorld.x, y: pendingTextWorld.y, text: val };
           objects.push(o);
           undoStack.push({ type: 'create', id: o.id });
           saveObject(o);
@@ -1700,9 +966,7 @@
         const o = objects.find(x => x.id === editingTextId);
         if (o) { o.text = val; saveObject(o, true); }
       }
-      editingTextId = null;
-      pendingTextWorld = null;
-      redraw();
+      editingTextId = null; pendingTextWorld = null; redraw();
     }
     textInput.addEventListener('blur', () => { if (editingTextId) commitText(); });
     textInput.addEventListener('keydown', (e) => {
@@ -1713,7 +977,7 @@
       }
     });
 
-    // ========== FIREBASE ==========
+    // ===== FIREBASE =====
     function genId() {
       const a = new Uint8Array(6); crypto.getRandomValues(a);
       return Array.from(a, n => 'abcdefghijklmnopqrstuvwxyz0123456789'[n % 36]).join('');
@@ -1724,17 +988,10 @@
       try {
         const data = JSON.parse(JSON.stringify(o));
         delete data._bw; delete data._bh; delete data._eraserVisual;
-        if (isUpdate) {
-          await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data, { merge: true });
-        } else {
-          data.t = serverTimestamp();
-          await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data);
-        }
+        if (isUpdate) await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data, { merge: true });
+        else { data.t = serverTimestamp(); await setDoc(doc(db, 'rooms', roomId, 'objects', o.id), data); }
         setStatus('ok', 'Synced');
-      } catch (e) {
-        console.warn(e);
-        setStatus('err', e.code || 'save error');
-      }
+      } catch (e) { console.warn(e); setStatus('err', e.code || 'save error'); }
     }
 
     async function deleteObject(id) {
@@ -1754,11 +1011,9 @@
       onSnapshot(q, (snap) => {
         const seen = new Set();
         snap.forEach(d => {
-          const data = d.data();
-          delete data.t;
-          const existing = objects.findIndex(x => x.id === d.id);
-          if (existing >= 0) objects[existing] = data;
-          else objects.push(data);
+          const data = d.data(); delete data.t;
+          const idx = objects.findIndex(x => x.id === d.id);
+          if (idx >= 0) objects[idx] = data; else objects.push(data);
           seen.add(d.id);
         });
         objects = objects.filter(o => seen.has(o.id));
@@ -1771,7 +1026,7 @@
       });
     }
 
-    // ========== PDF ==========
+    // ===== PDF =====
     function compressPage() {
       const maxW = 1400;
       const src = pdfRenderCanvas;
@@ -1796,10 +1051,7 @@
           aspect: pdfRenderCanvas.width / pdfRenderCanvas.height
         }, { merge: true });
         setStatus('ok', `Page · ${sizeKB}KB`);
-      } catch (e) {
-        console.warn(e);
-        setStatus('err', e.code || 'page too large');
-      }
+      } catch (e) { console.warn(e); setStatus('err', e.code || 'page too large'); }
     }
 
     function subscribeRoom() {
@@ -1813,34 +1065,27 @@
               pdfImage = { img, raw: data.pdf };
               if (data.aspect) pdfAspect = data.aspect;
               else pdfAspect = img.width / img.height;
-              buildPdfLayer();
-              redraw();
+              buildPdfLayer(); redraw();
             };
             img.src = data.pdf;
           }
           if (data.aspect) pdfAspect = data.aspect;
         } else if (pdfImage) {
-          pdfImage = null;
-          pdfAspect = null;
-          pdfLayerCanvas = null;
-          redraw();
+          pdfImage = null; pdfAspect = null; pdfLayerCanvas = null; redraw();
         }
-        if (data.pageNum) {
-          setFileMeta(`Page ${data.pageNum}${data.pageSize ? ' · ' + data.pageSize + 'KB' : ''}`);
-        }
+        if (data.pageNum) setFileMeta(`Page ${data.pageNum}${data.pageSize ? ' · ' + data.pageSize + 'KB' : ''}`);
       });
     }
 
     pdfInput.onchange = async (e) => {
+      if (!isHost) return;
       const file = e.target.files[0];
       if (!file) return;
-
       if (file.type.startsWith('image/')) {
         const img = new Image();
         img.onload = () => {
           pdfRenderCanvas = document.createElement('canvas');
-          const maxW = 1400;
-          const scale = Math.min(1, maxW / img.width);
+          const scale = Math.min(1, 1400 / img.width);
           pdfRenderCanvas.width = Math.round(img.width * scale);
           pdfRenderCanvas.height = Math.round(img.height * scale);
           const c2 = pdfRenderCanvas.getContext('2d');
@@ -1848,12 +1093,11 @@
           c2.fillRect(0, 0, pdfRenderCanvas.width, pdfRenderCanvas.height);
           c2.drawImage(img, 0, 0, pdfRenderCanvas.width, pdfRenderCanvas.height);
           setFileName(file.name);
-          if (isHost) savePdfPage();
+          savePdfPage();
         };
         img.src = URL.createObjectURL(file);
         return;
       }
-
       if (file.type === 'application/pdf') {
         try {
           if (!window.pdfjsLib) { setFileName('PDF lib not loaded'); return; }
@@ -1862,10 +1106,7 @@
           pdfPage = 1;
           setFileName(file.name);
           await renderPdf();
-        } catch (err) {
-          console.warn(err);
-          setFileName('Failed to read PDF');
-        }
+        } catch (err) { console.warn(err); setFileName('Failed to read PDF'); }
       }
     };
 
@@ -1873,17 +1114,14 @@
       if (!pdfDoc) return;
       const page = await pdfDoc.getPage(pdfPage);
       let viewport = page.getViewport({ scale: 1 });
-      const maxDim = 1600;
-      const s = Math.min(maxDim / viewport.width, maxDim / viewport.height);
+      const s = Math.min(1600 / viewport.width, 1600 / viewport.height);
       viewport = page.getViewport({ scale: s });
-
       pdfRenderCanvas = document.createElement('canvas');
       pdfRenderCanvas.width = viewport.width;
       pdfRenderCanvas.height = viewport.height;
       const pctx = pdfRenderCanvas.getContext('2d');
       pctx.fillStyle = '#fff';
       pctx.fillRect(0, 0, viewport.width, viewport.height);
-
       await page.render({ canvasContext: pctx, viewport }).promise;
       setFileMeta(`Page ${pdfPage} of ${pdfDoc.numPages}`);
       if (isHost) await savePdfPage();
@@ -1897,17 +1135,14 @@
       ['fileMeta', 'fileMetaM'].forEach(id => { const el = $(id); if (el) el.textContent = text || ''; });
     }
 
-    // ========== UI ==========
+    // ===== UI =====
     function setStatus(type, text) {
       ['statusLine', 'statusLineM'].forEach(id => {
         const el = $(id); if (!el) return;
         const icon = el.querySelector('i');
         el.classList.remove('ok', 'err');
         if (type) el.classList.add(type);
-        icon.className = 'fa-solid ' + (
-          type === 'ok' ? 'fa-circle-check' :
-            type === 'err' ? 'fa-circle-exclamation' : 'fa-circle-notch'
-        );
+        icon.className = 'fa-solid ' + (type === 'ok' ? 'fa-circle-check' : type === 'err' ? 'fa-circle-exclamation' : 'fa-circle-notch');
         const t = el.querySelector('span:last-child');
         if (t) t.textContent = text ? ` · ${text}` : '';
       });
@@ -1940,42 +1175,32 @@
       container.innerHTML = '';
       COLORS.forEach(c => {
         const b = document.createElement('div');
-        b.className = (isDesktop ? 'swatch-lg' : 'swatch') +
-          (c === currentColor ? ' active' : '') +
-          (c === '#ffffff' ? ' white' : '');
+        b.className = (isDesktop ? 'swatch-lg' : 'swatch') + (c === currentColor ? ' active' : '') + (c === '#ffffff' ? ' white' : '');
         b.style.background = c;
         b.onclick = () => { currentColor = c; rebuildColors(); };
         container.appendChild(b);
       });
     }
-    function rebuildColors() {
-      buildColors($('colorsD'), true);
-      buildColors($('colorsM'), false);
-    }
+    function rebuildColors() { buildColors($('colorsD'), true); buildColors($('colorsM'), false); }
     function setTool(id) {
+      if (!isHost) return;
       currentTool = id;
-      document.querySelectorAll('[data-tool]').forEach(el => {
-        el.classList.toggle('active', el.dataset.tool === id);
-      });
+      document.querySelectorAll('[data-tool]').forEach(el => el.classList.toggle('active', el.dataset.tool === id));
       if (editingTextId && id !== 'text') commitText();
-      canvas.style.cursor = id === 'select' ? 'default' :
-        id === 'text' ? 'text' : 'crosshair';
+      canvas.style.cursor = id === 'select' ? 'default' : id === 'text' ? 'text' : 'crosshair';
     }
     async function doAction(id) {
-      if (id === 'clear') {
-        objects = []; selectedId = null; redraw();
-        if (isHost) await clearAll();
-      }
+      if (!isHost) return;
+      if (id === 'clear') { objects = []; selectedId = null; redraw(); await clearAll(); }
       if (id === 'undo') {
         if (objects.length === 0) return;
         const last = objects.pop();
         if (selectedId === last.id) selectedId = null;
-        redraw();
-        if (isHost) deleteObject(last.id);
+        redraw(); deleteObject(last.id);
       }
     }
 
-    // ========== ROOM ==========
+    // ===== ROOM =====
     function getRoom() {
       const p = location.pathname.replace(/^\/|\/$/g, '');
       return /^[a-zA-Z0-9_-]{4,32}$/.test(p) ? p : null;
@@ -1997,56 +1222,48 @@
       } catch { prompt('Copy:', link); }
     };
 
-    // ========== ZOOM ==========
+    // ===== ZOOM =====
     function setZoom(z, cx, cy) {
       z = Math.max(0.3, Math.min(5, z));
-      const px = (cx != null ? cx : W / 2);
-      const py = (cy != null ? cy : H / 2);
+      const px = (cx != null ? cx : W / 2), py = (cy != null ? cy : H / 2);
       const before = toWorld(px, py);
       view.userScale = z;
       computeView();
       const after = toWorld(px, py);
       view.userPanX += (after.x - before.x) * view.scale;
       view.userPanY += (after.y - before.y) * view.scale;
-      computeView();
-      redraw();
-      buildPdfLayer();
-      redraw();
+      computeView(); redraw(); buildPdfLayer(); redraw();
     }
 
-    // ========== WIRE EVENTS ==========
+    // ===== WIRE EVENTS =====
     function wireEvents() {
       canvas.addEventListener('pointerdown', onPointerDown);
       canvas.addEventListener('pointermove', onPointerMove);
       canvas.addEventListener('pointerup', onPointerUp);
       canvas.addEventListener('pointercancel', onPointerUp);
-      canvas.addEventListener('pointerleave', (e) => {
-        if (drawing) onPointerUp(e);
-      });
-
+      canvas.addEventListener('pointerleave', (e) => { if (drawing) onPointerUp(e); });
       canvas.addEventListener('touchmove', (e) => { if (drawing) e.preventDefault(); }, { passive: false });
 
       canvas.addEventListener('wheel', (e) => {
         if (e.ctrlKey || e.metaKey || e.altKey) {
           e.preventDefault();
           const r = canvas.getBoundingClientRect();
-          const factor = e.deltaY < 0 ? 1.1 : 0.9;
-          setZoom(view.userScale * factor, e.clientX - r.left, e.clientY - r.top);
+          setZoom(view.userScale * (e.deltaY < 0 ? 1.1 : 0.9), e.clientX - r.left, e.clientY - r.top);
         }
       }, { passive: false });
 
-      // Pinch zoom
+      // Pinch zoom (works for both host and viewer)
       let pinch = null;
       canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
           e.preventDefault();
-          cancelLive();
+          if (isHost) cancelLive();
           const r = canvas.getBoundingClientRect();
           const t1 = e.touches[0], t2 = e.touches[1];
           const cx = ((t1.clientX + t2.clientX) / 2) - r.left;
           const cy = ((t1.clientY + t2.clientY) / 2) - r.top;
           const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-          pinch = { startDist: dist, startScale: view.userScale, cx, cy, startPan: { x: view.userPanX, y: view.userPanY }, startMid: { x: cx, y: cy } };
+          pinch = { startDist: dist, startScale: view.userScale, startPan: { x: view.userPanX, y: view.userPanY }, startMid: { x: cx, y: cy } };
         }
       }, { passive: false });
 
@@ -2056,16 +1273,12 @@
           const r = canvas.getBoundingClientRect();
           const t1 = e.touches[0], t2 = e.touches[1];
           const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-          const mid = {
-            x: ((t1.clientX + t2.clientX) / 2) - r.left,
-            y: ((t1.clientY + t2.clientY) / 2) - r.top
-          };
+          const mid = { x: ((t1.clientX + t2.clientX) / 2) - r.left, y: ((t1.clientY + t2.clientY) / 2) - r.top };
           const factor = dist / Math.max(1, pinch.startDist);
           view.userScale = Math.max(0.3, Math.min(5, pinch.startScale * factor));
           view.userPanX = pinch.startPan.x + (mid.x - pinch.startMid.x);
           view.userPanY = pinch.startPan.y + (mid.y - pinch.startMid.y);
-          computeView();
-          redraw();
+          computeView(); redraw();
         }
       }, { passive: false });
 
@@ -2074,15 +1287,14 @@
         if (e.touches.length === 0) touchCount = 0;
       });
 
-      // Double-tap text
+      // Double-tap text (host only)
       let lastTap = 0, lastTapPos = null;
       canvas.addEventListener('click', (e) => {
         if (!isHost || currentTool !== 'select') return;
         const r = canvas.getBoundingClientRect();
         const p = toWorld(e.clientX - r.left, e.clientY - r.top);
         const now = Date.now();
-        if (now - lastTap < 300 && lastTapPos &&
-          Math.hypot(p.x - lastTapPos.x, p.y - lastTapPos.y) < 30) {
+        if (now - lastTap < 300 && lastTapPos && Math.hypot(p.x - lastTapPos.x, p.y - lastTapPos.y) < 30) {
           for (let i = objects.length - 1; i >= 0; i--) {
             const o = objects[i];
             if (o.type === 'text' && hitTest(o, p.x, p.y)) { editExistingText(o); break; }
@@ -2101,16 +1313,16 @@
       $('sizeSlider').oninput = e => sizeHandler(e.target.value);
       $('sizeSliderM').oninput = e => sizeHandler(e.target.value);
 
-      const prevFn = () => { if (pdfDoc && pdfPage > 1) { pdfPage--; renderPdf(); } };
-      const nextFn = () => { if (pdfDoc && pdfPage < pdfDoc.numPages) { pdfPage++; renderPdf(); } };
+      const prevFn = () => { if (isHost && pdfDoc && pdfPage > 1) { pdfPage--; renderPdf(); } };
+      const nextFn = () => { if (isHost && pdfDoc && pdfPage < pdfDoc.numPages) { pdfPage++; renderPdf(); } };
       $('prevPage').onclick = prevFn; $('prevPageM').onclick = prevFn;
       $('nextPage').onclick = nextFn; $('nextPageM').onclick = nextFn;
 
       const removeFn = async () => {
+        if (!isHost) return;
         pdfDoc = null; pdfRenderCanvas = null; pdfImage = null; pdfAspect = null; pdfLayerCanvas = null;
-        setFileName(null); setFileMeta('');
-        redraw();
-        if (isHost) await setDoc(doc(db, 'rooms', roomId), { pdf: null, pageNum: null, pageSize: null, aspect: null }, { merge: true });
+        setFileName(null); setFileMeta(''); redraw();
+        await setDoc(doc(db, 'rooms', roomId), { pdf: null, pageNum: null, pageSize: null, aspect: null }, { merge: true });
       };
       $('removeFile').onclick = removeFn;
       $('removeFileM').onclick = removeFn;
@@ -2119,7 +1331,7 @@
         const open = drawer.classList.contains('open');
         drawer.classList.toggle('open', !open);
         backdrop.classList.toggle('open', !open);
-        fab.classList.toggle('hidden', !open ? false : true);
+        if (isHost) fab.classList.toggle('hidden', !open ? false : true);
       };
       backdrop.onclick = () => {
         drawer.classList.remove('open');
@@ -2131,42 +1343,46 @@
       $('zoomOut').onclick = () => setZoom(view.userScale / 1.2);
       $('zoomReset').onclick = () => {
         view.userScale = 1; view.userPanX = 0; view.userPanY = 0;
-        computeView();
-        buildPdfLayer();
-        redraw();
+        computeView(); buildPdfLayer(); redraw();
       };
 
       window.addEventListener('keydown', (e) => {
         if (!isHost) return;
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-          e.preventDefault(); doAction('undo'); return;
-        }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); doAction('undo'); return; }
         if (e.key === 'Delete' || e.key === 'Backspace') {
           if (selectedId) {
             e.preventDefault();
             objects = objects.filter(o => o.id !== selectedId);
-            if (isHost) deleteObject(selectedId);
-            selectedId = null;
-            redraw();
+            deleteObject(selectedId);
+            selectedId = null; redraw();
           }
           return;
         }
-        const map = {
-          'p': 'pen', 'e': 'eraser', 'l': 'line', 'a': 'arrow', 'r': 'rect',
-          'c': 'circle', 't': 'text', 'v': 'select', 's': 'triangle'
-        };
-        const k = e.key.toLowerCase();
-        if (map[k]) { setTool(map[k]); return; }
+        const map = { 'p': 'pen', 'e': 'eraser', 'l': 'line', 'a': 'arrow', 'r': 'rect', 'c': 'circle', 't': 'text', 'v': 'select', 's': 'triangle' };
+        if (map[e.key.toLowerCase()]) { setTool(map[e.key.toLowerCase()]); return; }
         if (e.key === 'Escape') { selectedId = null; redraw(); }
       });
 
-      document.addEventListener('touchmove', (e) => {
-        if (drawing) e.preventDefault();
-      }, { passive: false });
+      document.addEventListener('touchmove', (e) => { if (drawing) e.preventDefault(); }, { passive: false });
     }
 
-    // ========== BOOT ==========
+    // ===== VIEWER UI =====
+    function setupViewerMode() {
+      isHost = false;
+      // Hide drawing controls, show banner
+      sidebar.classList.add('viewer');
+      fab.classList.add('hidden');
+      viewerBanner.classList.add('show');
+      canvas.style.cursor = 'default';
+      // Clear any live drawing state
+      liveObj = null; drawing = false; dragState = null; selectedId = null;
+      // Disable the size slider interaction visually (already handled via .viewer CSS)
+      setStatus('', 'Viewer');
+      redraw();
+    }
+
+    // ===== BOOT =====
     async function boot() {
       buildToolButtons($('toolsGridD'), false);
       buildToolButtons($('toolsGridM'), true);
@@ -2177,23 +1393,19 @@
 
       window.addEventListener('resize', resizeCanvas);
       window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 250));
-
       await new Promise(r => requestAnimationFrame(r));
       resizeCanvas();
 
       // ===== DASHBOARD INIT =====
-      // Show dashboard, hide main UI (body has main-ui-hidden class)
       document.body.classList.add('main-ui-hidden');
       nexDashboard.classList.remove('hidden');
 
-      // Generate a preview link for new session
       const previewRoom = newRoom();
       newLinkText.textContent = location.origin + '/' + previewRoom;
 
-      // --- New session button ---
+      // --- New session (Host) ---
       newSessionBtn.onclick = async () => {
         const rid = newRoom();
-        // Set up host mode
         isHost = true;
         roomId = rid;
         history.replaceState({}, '', '/' + roomId);
@@ -2202,13 +1414,12 @@
         roleTag.classList.add('host');
         sidebar.classList.remove('viewer');
         fab.classList.remove('hidden');
+        viewerBanner.classList.remove('show');
         canvas.style.cursor = 'crosshair';
 
-        // Hide dashboard, show main UI
         document.body.classList.remove('main-ui-hidden');
         nexDashboard.classList.add('hidden');
 
-        // Create room in Firestore
         try {
           await setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp() }, { merge: true });
           setStatus('ok', 'Connected');
@@ -2221,19 +1432,13 @@
         setTool('pen');
       };
 
-      // --- Continue old session ---
+      // --- Continue old session (Host) ---
       continueSessionBtn.onclick = async () => {
         const inputVal = sessionIdInput.value.trim();
-        if (!inputVal) {
-          alert('Please enter a session ID.');
-          return;
-        }
+        if (!inputVal) { alert('Please enter a session ID.'); return; }
         if (!/^[a-zA-Z0-9_-]{4,32}$/.test(inputVal)) {
-          alert('Session ID must be 4–32 characters (letters, numbers, -, _).');
-          return;
+          alert('Session ID must be 4–32 characters (letters, numbers, -, _).'); return;
         }
-
-        // Set up as host (admin) for the existing session
         isHost = true;
         roomId = inputVal;
         history.replaceState({}, '', '/' + roomId);
@@ -2242,13 +1447,12 @@
         roleTag.classList.add('host');
         sidebar.classList.remove('viewer');
         fab.classList.remove('hidden');
+        viewerBanner.classList.remove('show');
         canvas.style.cursor = 'crosshair';
 
-        // Hide dashboard, show main UI
         document.body.classList.remove('main-ui-hidden');
         nexDashboard.classList.add('hidden');
 
-        // Ensure room exists / connect
         try {
           await setDoc(doc(db, 'rooms', roomId), { created: serverTimestamp() }, { merge: true });
           setStatus('ok', 'Connected');
@@ -2261,38 +1465,39 @@
         setTool('pen');
       };
 
-      // Allow pressing Enter in the session input
       sessionIdInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          continueSessionBtn.click();
-        }
+        if (e.key === 'Enter') { e.preventDefault(); continueSessionBtn.click(); }
       });
 
-      // Also check if URL already has a room path – if so, skip dashboard?
-      // But we want the dashboard to always appear first (as requested).
-      // So we override: always show dashboard first.
-      // However, if someone opens a shared link directly, we still show dashboard.
-      // They can click "Continue Old Session" with the ID from URL.
-      // But to be friendly, we prefill the input with the room from URL if present.
+      // ===== VIEWER AUTO-JOIN =====
+      // If the URL already contains a room ID, the user is a viewer (shared link).
+      // They skip the dashboard and join immediately in view-only mode.
       const existingRoom = getRoom();
       if (existingRoom) {
-        sessionIdInput.value = existingRoom;
-        // Also, we could offer a quick button, but the user said "ask for id"
-        // So we just prefill.
-      }
+        // This is a shared link → viewer mode
+        roomId = existingRoom;
+        setupViewerMode();
 
-      // If you want to auto-connect as viewer on a shared link, that's handled
-      // in the original code, but since we're showing dashboard first, we
-      // won't auto-connect. The user must choose.
-      // That matches the requirement: "Generate new link" or "Continue old session"
-      // For shared links (viewers), they might be confused, but the user asked
-      // to always show dashboard since it's "only for me" — so fine.
+        // Skip dashboard
+        document.body.classList.remove('main-ui-hidden');
+        nexDashboard.classList.add('hidden');
+
+        urlText.textContent = location.origin + '/' + roomId;
+        roleTag.textContent = 'Viewer';
+        roleTag.classList.remove('host');
+        ['roomText', 'roomTextM'].forEach(id => { const el = $(id); if (el) el.textContent = roomId; });
+        liveDot.classList.add('on');
+
+        subscribeObjects();
+        subscribeRoom();
+        setStatus('', 'Viewer');
+        // Still prefetch the room so the viewer can see the PDF if present
+        // (subscribeRoom handles that)
+      }
+      // If no room in URL, the dashboard stays visible (host must choose)
     }
 
-    // Expose boot for PDF.js
     window.boot = boot;
-    // If PDF.js fails to load, boot after timeout
     setTimeout(() => { if (!window._booted) { window._booted = true; boot(); } }, 3000);
   </script>
 </body>
