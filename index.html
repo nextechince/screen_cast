@@ -86,6 +86,29 @@
     color:var(--text);font-size:13px;font-weight:600;
   }
   .join-join:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  /* ROLE TOGGLE */
+  .role-toggle{
+    display:flex;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:10px;
+    padding:3px;margin-top:14px;
+  }
+  .role-toggle button{
+    flex:1;padding:9px;border-radius:7px;
+    font-size:12px;font-weight:600;color:var(--text-dim);
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    transition:all .15s;
+  }
+  .role-toggle button i{font-size:11px}
+  .role-toggle button.active{
+    background:var(--text);color:var(--bg);
+  }
+  .role-toggle button:not(.active):hover{color:var(--text)}
+  .role-hint{
+    font-size:11px;color:var(--text-dimmer);
+    margin-top:8px;text-align:center;
+    min-height:14px;
+  }
   .join-error{
     color:var(--danger);font-size:12px;margin-top:8px;
     min-height:16px;
@@ -94,13 +117,21 @@
     display:flex;align-items:center;gap:10px;
     padding:10px 12px;background:var(--surface-2);
     border:1px solid var(--border);border-radius:8px;
-    margin-bottom:6px;cursor:pointer;font-size:12px;
+    margin-bottom:6px;font-size:12px;
     transition:background .15s;
   }
   .recent-item:hover{background:var(--surface-3)}
-  .recent-item .code{font-family:'JetBrains Mono',monospace;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .recent-item .role{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);padding:2px 6px;border-radius:4px;background:var(--surface-3)}
-  .recent-item .role.host{background:var(--text);color:var(--bg)}
+  .recent-item .code{font-family:'JetBrains Mono',monospace;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+  .recent-item .recent-btns{display:flex;gap:4px;flex-shrink:0}
+  .recent-item .recent-btn{
+    font-size:10px;font-weight:600;text-transform:uppercase;
+    letter-spacing:.06em;padding:5px 8px;border-radius:5px;
+    background:var(--surface-3);color:var(--text-dim);
+    display:flex;align-items:center;gap:4px;
+  }
+  .recent-item .recent-btn:hover{background:var(--accent);color:#fff}
+  .recent-item .recent-btn.host:hover{background:var(--text);color:var(--bg)}
+  .recent-item .recent-btn i{font-size:9px}
 
   /* HEADER */
   .header{
@@ -338,6 +369,17 @@
       <input type="text" class="join-input mono" id="joinInput" placeholder="Room code…" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button class="join-join" id="joinBtn">Join</button>
     </div>
+
+    <div class="role-toggle" id="roleToggle">
+      <button data-role="viewer" class="active">
+        <i class="fa-solid fa-eye"></i> Join as Viewer
+      </button>
+      <button data-role="host">
+        <i class="fa-solid fa-crown"></i> Join as Host
+      </button>
+    </div>
+    <div class="role-hint" id="roleHint">Watch and follow the host's board</div>
+
     <div class="join-error" id="joinError"></div>
 
     <div class="join-recent" id="recentList" style="display:none">
@@ -488,7 +530,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Load PDF.js via CDN — non-blocking
 let pdfjsReady = false;
 const pdfjsScript = document.createElement('script');
 pdfjsScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
@@ -540,6 +581,7 @@ let pendingTextWorld = null;
 let dragState = null;
 let selectedId = null;
 let subsObjects = null, subsRoom = null;
+let joinAsHost = false; // role chosen on join screen
 
 const COLORS = ['#e11d48','#f59e0b','#22c55e','#2b6aff','#8b5cf6','#000000','#ffffff'];
 
@@ -571,8 +613,7 @@ function computeView(){
 }
 const toWorld = (sx, sy) => ({
   x: (sx - view.offsetX) / view.scale,
-  y: (sy - view.offsetY) / view.scale
-});
+  y: (sy - view.offsetY) / view.scale});
 const toScreen = (wx, wy) => ({
   x: wx * view.scale + view.offsetX,
   y: wy * view.scale + view.offsetY
@@ -1427,6 +1468,16 @@ function setZoom(z, cx, cy){
 }
 
 // ============ JOIN SCREEN ============
+function setJoinRole(role){
+  joinAsHost = (role === 'host');
+  document.querySelectorAll('#roleToggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.role === role);
+  });
+  $('roleHint').textContent = joinAsHost
+    ? 'You will be able to draw, upload and control the board'
+    : 'Watch and follow the host\u2019s board';
+}
+
 function showJoinScreen(){
   $('joinScreen').classList.remove('hidden');
   setTimeout(() => { try { $('joinInput').focus(); } catch {} }, 50);
@@ -1447,22 +1498,38 @@ function renderRecentRooms(){
   list.slice(0, 6).forEach(r => {
     const el = document.createElement('div');
     el.className = 'recent-item';
-    el.innerHTML =
-      `<span class="code">${r.code}</span>` +
-      `<span class="role${r.host ? ' host' : ''}">${r.host ? 'host' : 'viewer'}</span>`;
-    el.onclick = () => {
-      history.replaceState({}, '', '/' + r.code);
-      hideJoinScreen();
-      enterRoom(r.code, false);
-    };
+    const codeEl = document.createElement('span');
+    codeEl.className = 'code';
+    codeEl.textContent = r.code;
+    codeEl.onclick = () => joinRoom(r.code, false);
+    const btns = document.createElement('div');
+    btns.className = 'recent-btns';
+
+    const vBtn = document.createElement('button');
+    vBtn.className = 'recent-btn';
+    vBtn.innerHTML = '<i class="fa-solid fa-eye"></i>View';
+    vBtn.onclick = () => joinRoom(r.code, false);
+
+    const hBtn = document.createElement('button');
+    hBtn.className = 'recent-btn host';
+    hBtn.innerHTML = '<i class="fa-solid fa-crown"></i>Host';
+    hBtn.onclick = () => joinRoom(r.code, true);
+
+    btns.appendChild(vBtn);
+    btns.appendChild(hBtn);
+    el.appendChild(codeEl);
+    el.appendChild(btns);
     items.appendChild(el);
   });
 }
 function recordRoom(code, host){
   let list = [];
   try { list = JSON.parse(localStorage.getItem('liveboard_rooms') || '[]'); } catch {}
+  // keep track of last-used role for this room
+  const prev = list.find(x => x.code === code);
+  const keepHost = host || (prev && prev.host) || false;
   list = list.filter(x => x.code !== code);
-  list.unshift({ code, host, ts: Date.now() });
+  list.unshift({ code, host: keepHost, ts: Date.now() });
   list = list.slice(0, 10);
   try { localStorage.setItem('liveboard_rooms', JSON.stringify(list)); } catch {}
 }
@@ -1475,6 +1542,10 @@ function wireJoinScreen(){
     enterRoom(code, true);
   };
 
+  document.querySelectorAll('#roleToggle button').forEach(b => {
+    b.onclick = () => setJoinRole(b.dataset.role);
+  });
+
   const tryJoin = () => {
     const raw = ($('joinInput').value || '').trim().toLowerCase();
     const fromUrl = raw.includes('/') ? raw.split('/').filter(Boolean).pop() : raw;
@@ -1484,9 +1555,7 @@ function wireJoinScreen(){
       return;
     }
     $('joinError').textContent = '';
-    history.replaceState({}, '', '/' + code);
-    hideJoinScreen();
-    enterRoom(code, false);
+    joinRoom(code, joinAsHost);
   };
 
   $('joinBtn').onclick = tryJoin;
@@ -1496,6 +1565,12 @@ function wireJoinScreen(){
   $('joinInput').addEventListener('input', () => {
     $('joinError').textContent = '';
   });
+}
+
+function joinRoom(code, asHost){
+  history.replaceState({}, '', '/' + code);
+  hideJoinScreen();
+  enterRoom(code, asHost);
 }
 
 function enterRoom(code, host){
@@ -1710,6 +1785,7 @@ function boot(){
     rebuildColors();
     wireEvents();
     wireJoinScreen();
+    setJoinRole('viewer');
 
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 250));
@@ -1721,10 +1797,15 @@ function boot(){
 
   const existing = getRoom();
   if (existing){
-    hideJoinScreen();
-    enterRoom(existing, false);
+    // URL has a room code. Default to viewer, but user can tap the
+    // "Host" toggle on the join screen to join as host instead.
+    resizeCanvas();
+    $('joinInput').value = existing;
+    setJoinRole('viewer');
+    showJoinScreen();
   } else {
     resizeCanvas();
+    setJoinRole('viewer');
     showJoinScreen();
   }
 }
